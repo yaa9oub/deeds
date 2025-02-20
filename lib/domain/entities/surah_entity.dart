@@ -32,9 +32,9 @@ class VerseEntity {
 }
 
 class SurahEntity {
-  final int number;
-  final String name;
-  final String englishName;
+  int number;
+  String name;
+  String englishName;
   final String englishNameTranslation;
   final List<VerseEntity> ayahs;
 

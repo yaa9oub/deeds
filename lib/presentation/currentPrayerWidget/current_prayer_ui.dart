@@ -19,10 +19,6 @@ class CurrentPrayer extends StatelessWidget {
           content: Obx(
             () {
               double progress = controller.progressNotifier.value;
-              double bestProgress = controller.getBestTimeProgress(
-                  controller.currentPrayer.value, controller.nextPrayer.value);
-              double worstProgress = controller.getWorstTimeProgress(
-                  controller.currentPrayer.value, controller.nextPrayer.value);
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -53,7 +49,7 @@ class CurrentPrayer extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                             gradient: LinearGradient(
                               colors: [Colors.green, Colors.yellow, Colors.red],
-                              stops: [bestProgress, worstProgress, 1.0],
+                              stops: [0.1, 0.65, 1.0],
                             ),
                           ),
                         ),

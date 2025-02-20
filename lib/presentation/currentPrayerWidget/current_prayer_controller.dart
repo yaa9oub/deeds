@@ -93,8 +93,17 @@ class CurrentPrayerController extends GetxController {
     DateTime now = DateTime.now();
     DateTime currentPrayerTime = currentPrayer.value.getDateTime();
     DateTime nextPrayerTime = nextPrayer.value.getDateTime();
+
+    // Check if next prayer time is before the current prayer time (next day scenario)
+    if (nextPrayerTime.isBefore(currentPrayerTime)) {
+      nextPrayerTime = nextPrayerTime
+          .add(Duration(days: 1)); // Add 24 hours to next prayer time
+    }
+
     double progress = (now.difference(currentPrayerTime).inMinutes /
         nextPrayerTime.difference(currentPrayerTime).inMinutes);
+
+    print(progress);
     return progress.clamp(0.0, 1.0);
   }
 
@@ -109,36 +118,6 @@ class CurrentPrayerController extends GetxController {
       progressNotifier.value = getPrayerProgress();
       print(progressNotifier.value);
     });
-  }
-
-  double getBestTimeProgress(Prayer currentPrayer, Prayer nextPrayer) {
-    double totalDuration = nextPrayer
-        .getDateTime()
-        .difference(currentPrayer.getDateTime())
-        .inMinutes
-        .toDouble();
-    return (currentPrayer
-            .getDateTime()
-            .add(Duration(minutes: 30))
-            .difference(currentPrayer.getDateTime())
-            .inMinutes
-            .toDouble()) /
-        totalDuration;
-  }
-
-  double getWorstTimeProgress(Prayer currentPrayer, Prayer nextPrayer) {
-    double totalDuration = nextPrayer
-        .getDateTime()
-        .difference(currentPrayer.getDateTime())
-        .inMinutes
-        .toDouble();
-    return (nextPrayer
-            .getDateTime()
-            .subtract(Duration(minutes: 30))
-            .difference(currentPrayer.getDateTime())
-            .inMinutes
-            .toDouble()) /
-        totalDuration;
   }
 
   @override

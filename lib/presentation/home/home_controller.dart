@@ -64,6 +64,13 @@ class HomeController extends GetxController {
     "Sidi Bouzid"
   ];
 
+  var selectedValue = 1.obs; // Observable for selected value
+
+  // Method to update the selected value
+  void updateSelectedValue(int value) {
+    selectedValue.value = value;
+  }
+
   @override
   onInit() async {
     super.onInit();
