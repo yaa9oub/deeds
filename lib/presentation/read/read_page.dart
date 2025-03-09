@@ -66,154 +66,195 @@ class ReadPage extends GetView<ReadController> {
                           ),
                         ],
                       ),
-                      IconButtonWidget(
-                        onTap: () {
-                          controller.favoriteVerses =
-                              SharedPrefService.getFavoriteVerses();
+                      Row(
+                        children: [
+                          IconButtonWidget(
+                            onTap: () {
+                              controller.favoriteVerses =
+                                  SharedPrefService.getFavoriteVerses();
 
-                          Get.bottomSheet(
-                            GlassBottomSheet(
-                              content: Expanded(
-                                child: controller.favoriteVerses.isEmpty
-                                    ? Center(
-                                        child: Text(
-                                          "Add some favorite \nverses to earn deeds!",
-                                          style: AppTextStyles.smallBoldText,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      )
-                                    : ListView.separated(
-                                        shrinkWrap: true,
-                                        itemCount:
-                                            controller.favoriteVerses.length,
-                                        separatorBuilder: (context, index) {
-                                          return SizedBox(
-                                            height: 30.h,
-                                            child: Center(
-                                              child: Divider(
-                                                color: AppColors.secondary
-                                                    .withAlpha(100),
-                                                thickness: 2.h,
-                                              ),
+                              Get.bottomSheet(
+                                GlassBottomSheet(
+                                  content: Expanded(
+                                    child: controller.favoriteVerses.isEmpty
+                                        ? Center(
+                                            child: Text(
+                                              "Add some favorite \nverses to earn deeds!",
+                                              style:
+                                                  AppTextStyles.smallBoldText,
+                                              textAlign: TextAlign.center,
                                             ),
-                                          );
-                                        },
-                                        itemBuilder: (context, index) {
-                                          var verse =
-                                              controller.favoriteVerses[index];
-                                          return SizedBox(
-                                            width: double.infinity,
-                                            height: 60.h,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Flexible(
-                                                  child: Text(
-                                                    verse.text,
-                                                    style: AppTextStyles
-                                                        .mediumBoldText,
-                                                    textAlign: TextAlign.start,
-                                                    textDirection:
-                                                        TextDirection.rtl,
+                                          )
+                                        : ListView.separated(
+                                            shrinkWrap: true,
+                                            itemCount: controller
+                                                .favoriteVerses.length,
+                                            separatorBuilder: (context, index) {
+                                              return SizedBox(
+                                                height: 30.h,
+                                                child: Center(
+                                                  child: Divider(
+                                                    color: AppColors.secondary
+                                                        .withAlpha(100),
+                                                    thickness: 2.h,
                                                   ),
                                                 ),
-                                                SizedBox(
-                                                  width: 10.w,
+                                              );
+                                            },
+                                            itemBuilder: (context, index) {
+                                              var verse = controller
+                                                  .favoriteVerses[index];
+                                              return SizedBox(
+                                                width: double.infinity,
+                                                height: 60.h,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Flexible(
+                                                      child: Text(
+                                                        verse.text,
+                                                        style: AppTextStyles
+                                                            .mediumBoldText,
+                                                        textAlign:
+                                                            TextAlign.start,
+                                                        textDirection:
+                                                            TextDirection.rtl,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10.w,
+                                                    ),
+                                                    Text(
+                                                      verse.number.toString(),
+                                                      style: AppTextStyles
+                                                          .mediumBoldText,
+                                                    ),
+                                                  ],
                                                 ),
-                                                Text(
-                                                  verse.number.toString(),
-                                                  style: AppTextStyles
-                                                      .mediumBoldText,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                              );
+                                            },
+                                          ),
+                                  ),
+                                ),
+                                isScrollControlled: true,
+                                barrierColor: Colors.white.withAlpha(50),
+                              );
+                            },
+                            icon: Icon(
+                              CupertinoIcons.heart,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5.w,
+                          ),
+                          IconButtonWidget(
+                            onTap: () {
+                              controller.isReadOnly.value =
+                                  !controller.isReadOnly.value;
+                            },
+                            icon: Obx(
+                              () => Icon(
+                                controller.isReadOnly.value
+                                    ? CupertinoIcons.eye
+                                    : CupertinoIcons.eye_slash,
                               ),
                             ),
-                            isScrollControlled: true,
-                            barrierColor: Colors.white.withAlpha(50),
-                          );
-                        },
-                        icon: Icon(
-                          CupertinoIcons.heart,
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 10.w,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w),
-                  child: CardWidget(
-                    width: MediaQuery.of(context).size.width,
-                    height: 60.h,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6,
-                    ),
-                    content: Container(
-                      alignment: Alignment.center,
-                      height: 60.h,
-                      child: Obx(
-                        () => Text(
-                          "${controller.surah.value?.englishName ?? "Surah name"}   •   ${controller.verseNumber.value} / ${controller.surah.value?.ayahs.length ?? 0}   •   ${controller.surah.value?.number ?? 0} / 114",
-                          style: AppTextStyles.smallMidText,
+                Obx(
+                  () => Visibility(
+                    visible: controller.isReadOnly.value,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 10.w,
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 10.w,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w),
-                  child: Row(
-                    children: [
-                      Obx(
-                        () => Expanded(
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 14.w),
                           child: CardWidget(
                             width: MediaQuery.of(context).size.width,
                             height: 60.h,
                             padding: EdgeInsets.symmetric(
                               horizontal: 6,
                             ),
-                            content: SizedBox(
+                            content: Container(
+                              alignment: Alignment.center,
                               height: 60.h,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        "💕 ${controller.deeds.value}",
-                                        style: AppTextStyles.mediumBoldText,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        "📖 ${controller.surahs.value}",
-                                        style: AppTextStyles.mediumBoldText,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        "📄 ${controller.page.value}",
-                                        style: AppTextStyles.mediumBoldText,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              child: Obx(
+                                () => Text(
+                                  "${controller.surah.value?.englishName ?? "Surah name"}   •   ${controller.verseNumber.value} / ${controller.surah.value?.ayahs.length ?? 0}   •   ${controller.surah.value?.number ?? 0} / 114",
+                                  style: AppTextStyles.smallMidText,
+                                ),
                               ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14.w),
+                  child: Row(
+                    children: [
+                      Obx(
+                        () => Visibility(
+                          visible: controller.isReadOnly.value,
+                          child: Expanded(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 10.w,
+                                ),
+                                CardWidget(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 60.h,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                  ),
+                                  content: SizedBox(
+                                    height: 60.h,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              "💕 ${controller.deeds.value}",
+                                              style:
+                                                  AppTextStyles.mediumBoldText,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              "📖 ${controller.surahs.value}",
+                                              style:
+                                                  AppTextStyles.mediumBoldText,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              "📄 ${controller.page.value}",
+                                              style:
+                                                  AppTextStyles.mediumBoldText,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

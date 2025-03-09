@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:deeds/core/constants/assets.dart';
 import 'package:deeds/core/utils/shared_prefs.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:timezone/timezone.dart';
 

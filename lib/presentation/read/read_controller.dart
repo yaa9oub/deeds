@@ -27,6 +27,7 @@ class ReadController extends GetxController {
   int currentVersePage = 0;
 
   Rx<bool> isFavorite = false.obs;
+  Rx<bool> isReadOnly = true.obs;
 
   PageController pageController = PageController();
 

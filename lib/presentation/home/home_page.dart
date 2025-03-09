@@ -426,7 +426,7 @@ class HomePage extends GetView<HomeController> {
 
                                         return SizedBox(
                                           width: double.infinity,
-                                          height: 45.h,
+                                          height: 50.h,
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
