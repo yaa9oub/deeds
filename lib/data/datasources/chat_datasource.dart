@@ -87,7 +87,7 @@ class ChatRemoteDataSource {
       {
         "role": "system",
         "content": "You are a helpful teacher in islamic studies, "
-            "especially understanding and explaining Quran. Explain this verse for me in simple terms: ${message}"
+            "especially understanding and explaining Quran.Provide needed information about this verse and explain this verse for me in simple terms: ${message}"
       },
     ];
 
@@ -95,7 +95,7 @@ class ChatRemoteDataSource {
     final Map<String, dynamic> requestBody = {
       "model": model,
       "messages": formattedMessages,
-      "temperature": 0.7 // Adjust for creativity (0 = strict, 1 = very random)
+      "temperature": 0 // Adjust for creativity (0 = strict, 1 = very random)
     };
 
     final response = await http.post(

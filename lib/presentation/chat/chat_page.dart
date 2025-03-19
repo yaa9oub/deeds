@@ -226,7 +226,7 @@ class ChatPage extends StatelessWidget {
                             decoration: InputDecoration(
                               hintText: "Ask me about Islam.",
                               hintStyle: AppTextStyles.smallMidText.copyWith(
-                                color: AppColors.primary,
+                                color: AppColors.cardBgColor,
                               ),
                               contentPadding:
                                   EdgeInsets.symmetric(horizontal: 20.w),
@@ -242,7 +242,7 @@ class ChatPage extends StatelessWidget {
                           () => IconButton(
                             icon: Icon(
                               Icons.send,
-                              color: AppColors.primary,
+                              color: AppColors.cardBgColor,
                             ),
                             onPressed: controller.isLoading.value
                                 ? null

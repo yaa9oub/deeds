@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:deeds/core/constants/assets.dart';
 import 'package:deeds/core/utils/shared_prefs.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:timezone/timezone.dart';
 
@@ -20,6 +19,7 @@ class HomeController extends GetxController {
   Rx<bool> isLoading = false.obs;
   var prayers = <Prayer>[].obs;
   var surah = Rx<SurahEntity?>(null);
+
   Rx<Prayer> currentPrayer = Prayer(
           label: "label",
           icon: AppAssets.asr,
@@ -63,6 +63,18 @@ class HomeController extends GetxController {
     "La Manouba",
     "Sidi Bouzid"
   ];
+
+  var selectedSurah = 1.obs;
+  var selectedVerse = 1.obs;
+
+  // Method to update the selected value
+  void updateSelectedSurah(int value) {
+    selectedSurah.value = value;
+  }
+
+  void updateSelectedVerse(int value) {
+    selectedVerse.value = value;
+  }
 
   @override
   onInit() async {

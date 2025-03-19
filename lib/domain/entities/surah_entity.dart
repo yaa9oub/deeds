@@ -4,12 +4,16 @@ class VerseEntity {
   final String text;
   final String translation;
   final int page;
+  int? surahNumber;
+  String? surahName;
 
   VerseEntity({
     required this.page,
     required this.number,
     required this.text,
     required this.translation,
+    this.surahNumber,
+    this.surahName,
   });
 
   factory VerseEntity.fromJson(Map<String, dynamic> json) {
@@ -18,6 +22,8 @@ class VerseEntity {
       text: json['text'],
       translation: json['translation'],
       page: json['page'],
+      surahNumber: json['surahNumber'],
+      surahName: json['surahName'],
     );
   }
 
@@ -27,14 +33,16 @@ class VerseEntity {
       'text': text,
       'translation': translation,
       'page': page,
+      'surahNumber': surahNumber,
+      'surahName': surahName,
     };
   }
 }
 
 class SurahEntity {
-  final int number;
-  final String name;
-  final String englishName;
+  int number;
+  String name;
+  String englishName;
   final String englishNameTranslation;
   final List<VerseEntity> ayahs;
 

@@ -18,7 +18,7 @@ dependencies:
   blur: ^4.0.0
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.0
-  flutter_timezone: ^1.0.4
+  flutter_timezone: ^4.1.0
   intl: ^0.18.0
 
 dev_dependencies:
@@ -29,8 +29,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  assets:
-    - assets/jpg/
+  assets: 
     - assets/png/
     - assets/svg/
 
