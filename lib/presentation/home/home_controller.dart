@@ -19,6 +19,7 @@ class HomeController extends GetxController {
   Rx<bool> isLoading = false.obs;
   var prayers = <Prayer>[].obs;
   var surah = Rx<SurahEntity?>(null);
+
   Rx<Prayer> currentPrayer = Prayer(
           label: "label",
           icon: AppAssets.asr,
@@ -63,11 +64,16 @@ class HomeController extends GetxController {
     "Sidi Bouzid"
   ];
 
-  var selectedValue = 1.obs; // Observable for selected value
+  var selectedSurah = 1.obs;
+  var selectedVerse = 1.obs;
 
   // Method to update the selected value
-  void updateSelectedValue(int value) {
-    selectedValue.value = value;
+  void updateSelectedSurah(int value) {
+    selectedSurah.value = value;
+  }
+
+  void updateSelectedVerse(int value) {
+    selectedVerse.value = value;
   }
 
   @override

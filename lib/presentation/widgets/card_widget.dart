@@ -23,7 +23,7 @@ class CardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(25.r),
+      borderRadius: BorderRadius.circular(35.r),
       child: Container(
         width: width ?? MediaQuery.of(context).size.width,
         // height: height,

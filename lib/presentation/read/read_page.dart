@@ -70,78 +70,7 @@ class ReadPage extends GetView<ReadController> {
                         children: [
                           IconButtonWidget(
                             onTap: () {
-                              controller.favoriteVerses =
-                                  SharedPrefService.getFavoriteVerses();
-
-                              Get.bottomSheet(
-                                GlassBottomSheet(
-                                  content: Expanded(
-                                    child: controller.favoriteVerses.isEmpty
-                                        ? Center(
-                                            child: Text(
-                                              "Add some favorite \nverses to earn deeds!",
-                                              style:
-                                                  AppTextStyles.smallBoldText,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          )
-                                        : ListView.separated(
-                                            shrinkWrap: true,
-                                            itemCount: controller
-                                                .favoriteVerses.length,
-                                            separatorBuilder: (context, index) {
-                                              return SizedBox(
-                                                height: 30.h,
-                                                child: Center(
-                                                  child: Divider(
-                                                    color: AppColors.secondary
-                                                        .withAlpha(100),
-                                                    thickness: 2.h,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            itemBuilder: (context, index) {
-                                              var verse = controller
-                                                  .favoriteVerses[index];
-                                              return SizedBox(
-                                                width: double.infinity,
-                                                height: 60.h,
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Flexible(
-                                                      child: Text(
-                                                        verse.text,
-                                                        style: AppTextStyles
-                                                            .mediumBoldText,
-                                                        textAlign:
-                                                            TextAlign.start,
-                                                        textDirection:
-                                                            TextDirection.rtl,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 10.w,
-                                                    ),
-                                                    Text(
-                                                      verse.number.toString(),
-                                                      style: AppTextStyles
-                                                          .mediumBoldText,
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                  ),
-                                ),
-                                isScrollControlled: true,
-                                barrierColor: Colors.white.withAlpha(50),
-                              );
+                              favoriteVerses();
                             },
                             icon: Icon(
                               CupertinoIcons.heart,
@@ -287,9 +216,20 @@ class ReadPage extends GetView<ReadController> {
                                 physics: PageScrollPhysics(),
                                 onPageChanged: (value) {
                                   controller.readVerse(value);
-                                  // controller.isFavorite.value =
-                                  //     SharedPrefService.isFavorite(controller
-                                  //         .surah.value!.ayahs[value - 1].number);
+                                  if (value == 0) {
+                                    controller.isFavorite.value =
+                                        SharedPrefService.isFavorite(
+                                      controller.surah.value!.ayahs[0].number,
+                                      controller.surah.value!.name,
+                                    );
+                                  } else {
+                                    controller.isFavorite.value =
+                                        SharedPrefService.isFavorite(
+                                      controller
+                                          .surah.value!.ayahs[value].number,
+                                      controller.surah.value!.name,
+                                    );
+                                  }
                                 },
                                 controller: controller.pageController,
                                 itemBuilder: (context, index) {
@@ -413,51 +353,63 @@ class ReadPage extends GetView<ReadController> {
                                                 .translation,
                                           );
                                           Get.bottomSheet(
-                                            TafssirBottomSheet(
-                                              verse: controller
-                                                      .surah.value!.ayahs[
-                                                  controller.verseNumber.value -
-                                                      1],
-                                              controller: controller,
+                                            GlassBottomSheet(
+                                              content: TafssirBottomSheet(
+                                                verse: controller.surah.value!
+                                                    .ayahs[controller
+                                                        .verseNumber.value -
+                                                    1],
+                                                controller: controller,
+                                              ),
                                             ),
                                             isScrollControlled: true,
+                                            barrierColor:
+                                                Colors.white.withAlpha(50),
                                           );
                                         },
                                         icon: Icon(
-                                          CupertinoIcons.exclamationmark,
+                                          CupertinoIcons.question,
                                         ),
                                       ),
                                       SizedBox(
                                         width: 10.w,
                                       ),
-                                      IconButtonWidget(
-                                        onTap: () {
-                                          var verse = controller
-                                                  .surah.value!.ayahs[
-                                              controller.verseNumber.value - 1];
-                                          if (!controller.isFavorite.value) {
-                                            SharedPrefService.addFavoriteVerse(
-                                              verse,
-                                            );
-                                            controller.isFavorite.value =
-                                                SharedPrefService.isFavorite(
-                                              verse.number,
-                                            );
-                                          } else {
-                                            SharedPrefService
-                                                .removeFavoriteVerse(
-                                              verse.number,
-                                            );
-                                            controller.isFavorite.value =
-                                                SharedPrefService.isFavorite(
-                                              verse.number,
-                                            );
-                                          }
-                                        },
-                                        icon: Icon(
-                                          controller.isFavorite.value
-                                              ? CupertinoIcons.heart_fill
-                                              : CupertinoIcons.heart,
+                                      Obx(
+                                        () => IconButtonWidget(
+                                          onTap: () {
+                                            var verse = controller
+                                                    .surah.value!.ayahs[
+                                                controller.verseNumber.value -
+                                                    1];
+                                            verse.surahName =
+                                                controller.surah.value!.name;
+                                            verse.surahNumber =
+                                                controller.surah.value!.number;
+                                            if (!controller.isFavorite.value) {
+                                              SharedPrefService
+                                                  .addFavoriteVerse(verse);
+                                              controller.isFavorite.value =
+                                                  SharedPrefService.isFavorite(
+                                                verse.number,
+                                                verse.surahName!,
+                                              );
+                                            } else {
+                                              SharedPrefService
+                                                  .removeFavoriteVerse(
+                                                verse.number,
+                                              );
+                                              controller.isFavorite.value =
+                                                  SharedPrefService.isFavorite(
+                                                verse.number,
+                                                verse.surahName!,
+                                              );
+                                            }
+                                          },
+                                          icon: Icon(
+                                            controller.isFavorite.value
+                                                ? CupertinoIcons.heart_fill
+                                                : CupertinoIcons.heart,
+                                          ),
                                         ),
                                       ),
                                       SizedBox(
@@ -496,6 +448,72 @@ class ReadPage extends GetView<ReadController> {
       ),
     );
   }
+
+  void favoriteVerses() {
+    controller.favoriteVerses = SharedPrefService.getFavoriteVerses();
+
+    Get.bottomSheet(
+      GlassBottomSheet(
+        content: Expanded(
+          child: controller.favoriteVerses.isEmpty
+              ? Center(
+                  child: Text(
+                    "Add some favorite \nverses to earn deeds!",
+                    style: AppTextStyles.smallBoldText,
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: controller.favoriteVerses.length,
+                  separatorBuilder: (context, index) {
+                    return SizedBox(
+                      height: 30.h,
+                      child: Center(
+                        child: Divider(
+                          color: AppColors.secondary.withAlpha(100),
+                          thickness: 2.h,
+                        ),
+                      ),
+                    );
+                  },
+                  itemBuilder: (context, index) {
+                    var verse = controller.favoriteVerses[index];
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 14.w),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                verse.text,
+                                style: AppTextStyles.smallBoldText,
+                                textAlign: TextAlign.start,
+                                textDirection: TextDirection.rtl,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            Text(
+                              verse.number.toString(),
+                              style: AppTextStyles.smallBoldText,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ),
+      isScrollControlled: true,
+      barrierColor: Colors.white.withAlpha(50),
+    );
+  }
 }
 
 class TafssirBottomSheet extends StatelessWidget {
@@ -510,8 +528,7 @@ class TafssirBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
+    return SizedBox(
       height: MediaQuery.of(context).size.height * 0.8,
       width: MediaQuery.of(context).size.width,
       child: Obx(
@@ -520,20 +537,6 @@ class TafssirBottomSheet extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 5.h,
-              ),
-              SizedBox(
-                width: 100.w,
-                child: Divider(
-                  height: 8.h,
-                  thickness: 4.h,
-                  color: AppColors.secondary,
-                ),
-              ),
-              SizedBox(
-                height: 30.h,
-              ),
               Text(
                 verse!.text,
                 style: AppTextStyles.mediumBoldText,

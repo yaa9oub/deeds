@@ -45,11 +45,11 @@ class HomePage extends GetView<HomeController> {
                         "Deeds",
                         style: AppTextStyles.mediumBoldText.copyWith(),
                       ),
-                      IconButtonWidget(
-                        icon: Icon(
-                          CupertinoIcons.bell,
-                        ),
-                      ),
+                      // IconButtonWidget(
+                      //   icon: Icon(
+                      //     CupertinoIcons.bell,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -94,13 +94,13 @@ class HomePage extends GetView<HomeController> {
                             //goal
                             CardWidget(
                               width: MediaQuery.of(context).size.width,
-                              height: 220.h,
+                              height: 180.h,
                               content: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 15.h,
                                 children: [
                                   Text(
-                                    "Goal",
+                                    "Last read",
                                     style: AppTextStyles.midBoldText.copyWith(),
                                   ),
                                   Row(
@@ -119,104 +119,7 @@ class HomePage extends GetView<HomeController> {
                                         color: Colors.transparent,
                                         child: InkWell(
                                           onTap: () {
-                                            Get.bottomSheet(
-                                              GlassBottomSheet(
-                                                content: Expanded(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Spacer(),
-                                                      Text(
-                                                        "Pick your surah",
-                                                        style: AppTextStyles
-                                                            .midBoldText,
-                                                      ),
-                                                      SizedBox(
-                                                        height: 20.h,
-                                                      ),
-                                                      CupertinoPicker(
-                                                        itemExtent:
-                                                            60, // Height of each item
-                                                        onSelectedItemChanged:
-                                                            (int index) {
-                                                          controller
-                                                              .updateSelectedValue(
-                                                            index + 1,
-                                                          );
-                                                        },
-                                                        children: List<
-                                                            Widget>.generate(
-                                                          surahs
-                                                              .length, // Use the length of the surahs list
-                                                          (int index) {
-                                                            var surah =
-                                                                surahs[index];
-                                                            return Center(
-                                                              child: Text(
-                                                                '${surah['id']} - ${surah['name']} (${surah['verses']} Verses)',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        16), // Adjust font size if needed
-                                                              ),
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                      Spacer(),
-                                                      PrimaryButton(
-                                                        onPressed: () {
-                                                          SharedPrefService.saveInt(
-                                                              "surahNumber",
-                                                              controller
-                                                                  .selectedValue
-                                                                  .value);
-                                                          SharedPrefService
-                                                              .saveInt(
-                                                                  "verseNumber",
-                                                                  1);
-                                                          Get.back();
-                                                        },
-                                                        label: "Bissmillah",
-                                                      ),
-                                                      SizedBox(
-                                                        height: 30.h,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              isScrollControlled: true,
-                                              barrierColor:
-                                                  Colors.white.withAlpha(50),
-                                            );
-                                          },
-                                          borderRadius:
-                                              BorderRadius.circular(99),
-                                          child: Icon(
-                                            Icons.edit,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "0 / 20 • pages per day",
-                                        style: AppTextStyles.smallMidText,
-                                      ),
-                                      SizedBox(
-                                        width: 10.w,
-                                      ),
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            Get.toNamed(AppRoutes.home);
+                                            surahPicker();
                                           },
                                           borderRadius:
                                               BorderRadius.circular(99),
@@ -574,6 +477,82 @@ class HomePage extends GetView<HomeController> {
           ),
         ],
       ),
+    );
+  }
+
+  void surahPicker() {
+    Get.bottomSheet(
+      GlassBottomSheet(
+        content: Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Spacer(),
+              CupertinoPicker(
+                itemExtent: 60, // Height of each item
+                onSelectedItemChanged: (int index) {
+                  controller.updateSelectedSurah(
+                    index + 1,
+                  );
+                },
+                children: List.generate(
+                  surahs.length, // Use the length of the surahs list
+                  (int index) {
+                    var surah = surahs[index];
+                    return Center(
+                      child: Text(
+                        '${surah['id']} - ${surah['name']} (${surah['verses']} Verses)',
+                        style: AppTextStyles.smallMidText,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 10.h,
+              ),
+              Obx(
+                () => CupertinoPicker(
+                  itemExtent: 60, // Height of each item
+                  onSelectedItemChanged: (int index) {
+                    controller.updateSelectedVerse(
+                      index + 1,
+                    );
+                  },
+                  children: List.generate(
+                    surahs[controller.selectedSurah.value - 1]['verses'],
+                    (int index) {
+                      return Center(
+                        child: Text(
+                          '${index + 1}',
+                          style: AppTextStyles.smallMidText,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Spacer(),
+              PrimaryButton(
+                width: 300.w,
+                onPressed: () {
+                  SharedPrefService.saveInt(
+                      "surahNumber", controller.selectedSurah.value);
+                  SharedPrefService.saveInt(
+                      "verseNumber", controller.selectedVerse.value);
+                  Get.toNamed(AppRoutes.read);
+                },
+                label: "Start reading",
+              ),
+              SizedBox(
+                height: 30.h,
+              ),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+      barrierColor: Colors.white.withAlpha(50),
     );
   }
 }

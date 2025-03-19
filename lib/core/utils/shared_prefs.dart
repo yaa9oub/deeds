@@ -29,12 +29,8 @@ class SharedPrefService {
 
   static Future<void> addFavoriteVerse(VerseEntity verse) async {
     List<VerseEntity> favVerses = getFavoriteVerses();
-
-    // Prevent duplicates
-    if (!favVerses.any((v) => v.number == verse.number)) {
-      favVerses.add(verse);
-      await saveFavoriteVerses(favVerses);
-    }
+    favVerses.add(verse);
+    await saveFavoriteVerses(favVerses);
   }
 
   static Future<void> removeFavoriteVerse(int verseId) async {
@@ -43,9 +39,10 @@ class SharedPrefService {
     await saveFavoriteVerses(favVerses);
   }
 
-  static bool isFavorite(int verseId) {
+  static bool isFavorite(int verseId, String surahName) {
     List<VerseEntity> favVerses = getFavoriteVerses();
-    return favVerses.any((v) => v.number == verseId);
+    return favVerses
+        .any((v) => v.number == verseId && v.surahName == surahName);
   }
 
   /// Save String

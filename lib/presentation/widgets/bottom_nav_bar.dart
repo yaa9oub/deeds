@@ -59,12 +59,12 @@ class BottomNavBar extends StatelessWidget {
                     route: AppRoutes.chat,
                     isSelected: isFavorites,
                   ),
-                  BottomNavButton(
-                    icon: CupertinoIcons.settings,
-                    title: "Settings",
-                    route: AppRoutes.home,
-                    isSelected: isSettings,
-                  ),
+                  // BottomNavButton(
+                  //   icon: CupertinoIcons.settings,
+                  //   title: "Settings",
+                  //   route: AppRoutes.home,
+                  //   isSelected: isSettings,
+                  // ),
                 ],
               ),
             ],
