@@ -46,7 +46,7 @@ class ReadController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    SharedPrefService.clearAll();
+    // SharedPrefService.clearAll();
     // reading variables
     surahName.value =
         SharedPrefService.getString(LocalVariables.surahName.name) ??

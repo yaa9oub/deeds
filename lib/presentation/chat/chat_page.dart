@@ -82,16 +82,20 @@ class ChatPage extends StatelessWidget {
                                 text:
                                     "Hello I'm Bilel, an AI companion that helps you with your questions about Islam. Ask me anything!",
                                 speed: Duration(milliseconds: 10),
-                                textStyle: AppTextStyles.smallMidText,
+                                textStyle: AppTextStyles.smallBoldText,
                               ),
                             ),
                           ],
                         )
-                      : ListView.builder(
+                      : ListView.separated(
                           padding: EdgeInsets.all(16),
                           controller: controller
                               .scrollController, // Attach ScrollController
-
+                          separatorBuilder: (context, index) {
+                            return SizedBox(
+                              height: 10.h,
+                            );
+                          },
                           itemCount: controller.messages.length,
                           itemBuilder: (context, index) {
                             final msg = controller.messages[index];
@@ -101,6 +105,9 @@ class ChatPage extends StatelessWidget {
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
                               child: Container(
+                                constraints: BoxConstraints(
+                                  maxWidth: 300.w,
+                                ),
                                 margin: EdgeInsets.symmetric(vertical: 4),
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 20.w,
@@ -179,8 +186,8 @@ class ChatPage extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 topic,
-                                style: AppTextStyles.smallThinText.copyWith(
-                                  color: Colors.white,
+                                style: AppTextStyles.smallMidText.copyWith(
+                                  color: AppColors.secondary,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -222,7 +229,7 @@ class ChatPage extends StatelessWidget {
                             style: AppTextStyles.smallMidText.copyWith(
                               color: AppColors.primary,
                             ),
-                            // cursorColor: AppColors.textColor,
+                            cursorColor: AppColors.blackColor,
                             decoration: InputDecoration(
                               hintText: "Ask me about Islam.",
                               hintStyle: AppTextStyles.smallMidText.copyWith(
