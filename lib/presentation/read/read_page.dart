@@ -8,6 +8,11 @@ import 'package:deeds/core/constants/colors.dart';
 import 'package:deeds/core/constants/text.dart';
 import 'package:deeds/core/utils/shared_prefs.dart';
 import 'package:deeds/domain/entities/surah_entity.dart';
+import 'package:deeds/presentation/read/widgets/current_overview.dart';
+import 'package:deeds/presentation/read/widgets/read_app_bar.dart';
+import 'package:deeds/presentation/read/widgets/reading_progress_card.dart';
+import 'package:deeds/presentation/read/widgets/tafssir_bottomsheet.dart';
+import 'package:deeds/presentation/read/widgets/verse_content.dart';
 import 'package:deeds/presentation/widgets/background.dart';
 import 'package:deeds/presentation/widgets/bottom_sheet.dart';
 import 'package:deeds/presentation/widgets/card_widget.dart';
@@ -29,6 +34,7 @@ class ReadPage extends GetView<ReadController> {
     return WillPopScope(
       onWillPop: () {
         Get.offNamedUntil(AppRoutes.home, (route) => false);
+        controller.saveProgress();
         return Future.value(true);
       },
       child: Scaffold(
@@ -38,159 +44,11 @@ class ReadPage extends GetView<ReadController> {
             Column(
               children: [
                 //app bar
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 60.h,
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  margin: EdgeInsets.only(top: 30.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          IconButtonWidget(
-                            onTap: () {
-                              Get.offNamedUntil(
-                                  AppRoutes.home, (route) => false);
-                            },
-                            icon: Icon(
-                              CupertinoIcons.back,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          Text(
-                            "Reading",
-                            style: AppTextStyles.mediumBoldText,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          IconButtonWidget(
-                            onTap: () {
-                              favoriteVerses();
-                            },
-                            icon: Icon(
-                              CupertinoIcons.heart,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5.w,
-                          ),
-                          IconButtonWidget(
-                            onTap: () {
-                              controller.isReadOnly.value =
-                                  !controller.isReadOnly.value;
-                            },
-                            icon: Obx(
-                              () => Icon(
-                                controller.isReadOnly.value
-                                    ? CupertinoIcons.eye
-                                    : CupertinoIcons.eye_slash,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Obx(
-                  () => Visibility(
-                    visible: controller.isReadOnly.value,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 10.w,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 14.w),
-                          child: CardWidget(
-                            width: MediaQuery.of(context).size.width,
-                            height: 60.h,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6,
-                            ),
-                            content: Container(
-                              alignment: Alignment.center,
-                              height: 60.h,
-                              child: Obx(
-                                () => Text(
-                                  "${controller.surah.value?.englishName ?? "Surah name"}   •   ${controller.verseNumber.value} / ${controller.surah.value?.ayahs.length ?? 0}   •   ${controller.surah.value?.number ?? 0} / 114",
-                                  style: AppTextStyles.smallMidText,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w),
-                  child: Row(
-                    children: [
-                      Obx(
-                        () => Visibility(
-                          visible: controller.isReadOnly.value,
-                          child: Expanded(
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 10.w,
-                                ),
-                                CardWidget(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: 60.h,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                  ),
-                                  content: SizedBox(
-                                    height: 60.h,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              "💕 ${controller.deeds.value}",
-                                              style:
-                                                  AppTextStyles.mediumBoldText,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              "📖 ${controller.surahs.value}",
-                                              style:
-                                                  AppTextStyles.mediumBoldText,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              "📄 ${controller.page.value}",
-                                              style:
-                                                  AppTextStyles.mediumBoldText,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ReadAppBar(controller: controller),
+                //reading progress card
+                ReadingProgressCard(controller: controller),
+                //current overview
+                CurrentOverview(controller: controller),
                 SizedBox(
                   height: 10.h,
                 ),
@@ -215,7 +73,10 @@ class ReadPage extends GetView<ReadController> {
                                 scrollDirection: Axis.vertical,
                                 physics: PageScrollPhysics(),
                                 onPageChanged: (value) {
+                                  controller.isSurahCompleted.value = value ==
+                                      controller.surah.value!.ayahs.length;
                                   controller.readVerse(value);
+                                  controller.verseIndex = value;
                                   if (value == 0) {
                                     controller.isFavorite.value =
                                         SharedPrefService.isFavorite(
@@ -265,174 +126,132 @@ class ReadPage extends GetView<ReadController> {
                                       controller.surah.value!.ayahs.length) {
                                     final verse =
                                         controller.surah.value?.ayahs[index];
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 14.w,
-                                        vertical: 5.h,
-                                      ),
-                                      child: CardWidget(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 10.w,
-                                          vertical: 20.h,
-                                        ),
-                                        margin: EdgeInsets.symmetric(
-                                          horizontal: 14.w,
-                                          vertical: 5.h,
-                                        ),
-                                        content: SizedBox(
-                                          width: double.infinity,
-                                          child: Scrollbar(
-                                            thumbVisibility: true,
-                                            radius: Radius.circular(999),
-                                            thickness: 2.w,
-                                            controller: scrollController,
-                                            child: SingleChildScrollView(
-                                              controller: scrollController,
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: 10.w,
-                                                ),
-                                                child: Column(
-                                                  children: [
-                                                    Text(
-                                                      verse!.text.replaceFirst(
-                                                          "\n", ""),
-                                                      style: AppTextStyles
-                                                          .mediumBoldText,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      textDirection:
-                                                          TextDirection.rtl,
-                                                    ),
-                                                    SizedBox(
-                                                      height: 10.h,
-                                                    ),
-                                                    Text(
-                                                      verse.translation,
-                                                      style: AppTextStyles
-                                                          .midBoldText,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                    return VerseContent(
+                                      scrollController: scrollController,
+                                      verse: verse,
                                     );
                                   }
                                   return null;
                                 },
                               ),
                               //buttons
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 50.h,
-                                  margin: EdgeInsets.only(
-                                    bottom: 15.h,
-                                    right: 22.w,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      IconButtonWidget(
-                                        onTap: () {
-                                          controller.fetchTafsir(
-                                            controller
-                                                .surah
-                                                .value!
-                                                .ayahs[controller
-                                                        .verseNumber.value -
-                                                    1]
-                                                .translation,
-                                          );
-                                          Get.bottomSheet(
-                                            GlassBottomSheet(
-                                              content: TafssirBottomSheet(
-                                                verse: controller.surah.value!
-                                                    .ayahs[controller
-                                                        .verseNumber.value -
-                                                    1],
-                                                controller: controller,
-                                              ),
+                              Obx(
+                                () {
+                                  return (!controller.isSurahCompleted.value)
+                                      ? Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Container(
+                                            width: double.infinity,
+                                            height: 50.h,
+                                            margin: EdgeInsets.only(
+                                              bottom: 15.h,
+                                              right: 22.w,
                                             ),
-                                            isScrollControlled: true,
-                                            barrierColor:
-                                                Colors.white.withAlpha(50),
-                                          );
-                                        },
-                                        icon: Icon(
-                                          CupertinoIcons.question,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.w,
-                                      ),
-                                      Obx(
-                                        () => IconButtonWidget(
-                                          onTap: () {
-                                            var verse = controller
-                                                    .surah.value!.ayahs[
-                                                controller.verseNumber.value -
-                                                    1];
-                                            verse.surahName =
-                                                controller.surah.value!.name;
-                                            verse.surahNumber =
-                                                controller.surah.value!.number;
-                                            if (!controller.isFavorite.value) {
-                                              SharedPrefService
-                                                  .addFavoriteVerse(verse);
-                                              controller.isFavorite.value =
-                                                  SharedPrefService.isFavorite(
-                                                verse.number,
-                                                verse.surahName!,
-                                              );
-                                            } else {
-                                              SharedPrefService
-                                                  .removeFavoriteVerse(
-                                                verse.number,
-                                              );
-                                              controller.isFavorite.value =
-                                                  SharedPrefService.isFavorite(
-                                                verse.number,
-                                                verse.surahName!,
-                                              );
-                                            }
-                                          },
-                                          icon: Icon(
-                                            controller.isFavorite.value
-                                                ? CupertinoIcons.heart_fill
-                                                : CupertinoIcons.heart,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                IconButtonWidget(
+                                                  size: 45,
+                                                  gradient: LinearGradient(
+                                                    begin: Alignment.centerLeft,
+                                                    end: Alignment.centerRight,
+                                                    colors: [
+                                                      AppColors.primary
+                                                          .withOpacity(0.63),
+                                                      AppColors.primary,
+                                                    ],
+                                                  ),
+                                                  onTap: () {
+                                                    controller.fetchTafsir(
+                                                      controller
+                                                          .surah
+                                                          .value!
+                                                          .ayahs[controller
+                                                                  .verseNumber
+                                                                  .value -
+                                                              1]
+                                                          .translation,
+                                                    );
+                                                    Get.bottomSheet(
+                                                      GlassBottomSheet(
+                                                        content:
+                                                            TafssirBottomSheet(
+                                                          verse: controller
+                                                              .surah
+                                                              .value!
+                                                              .ayahs[controller
+                                                                  .verseNumber
+                                                                  .value -
+                                                              1],
+                                                          controller:
+                                                              controller,
+                                                        ),
+                                                      ),
+                                                      isScrollControlled: true,
+                                                      barrierColor: Colors.white
+                                                          .withAlpha(50),
+                                                    );
+                                                  },
+                                                  icon: Icon(
+                                                    CupertinoIcons.question,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: 10.w,
+                                                ),
+                                                Obx(
+                                                  () => IconButtonWidget(
+                                                    size: 45,
+                                                    gradient: LinearGradient(
+                                                      begin:
+                                                          Alignment.centerLeft,
+                                                      end:
+                                                          Alignment.centerRight,
+                                                      colors: [
+                                                        AppColors.primary
+                                                            .withOpacity(0.63),
+                                                        AppColors.primary,
+                                                      ],
+                                                    ),
+                                                    onTap: () {
+                                                      toggleFavoriteVerse(
+                                                          controller);
+                                                    },
+                                                    icon: Icon(
+                                                      controller
+                                                              .isFavorite.value
+                                                          ? CupertinoIcons
+                                                              .heart_fill
+                                                          : CupertinoIcons
+                                                              .heart,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: 10.w,
+                                                ),
+                                                PrimaryButton(
+                                                    width: 70.w,
+                                                    onPressed: () {
+                                                      controller.pageController
+                                                          .animateToPage(
+                                                        controller.verseIndex +
+                                                            1,
+                                                        duration: Duration(
+                                                            milliseconds: 400),
+                                                        curve: Curves.ease,
+                                                      );
+                                                    },
+                                                    label: "Next 👇🏻")
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.w,
-                                      ),
-                                      PrimaryButton(
-                                          width: 70.w,
-                                          onPressed: () {
-                                            controller.readVerse(
-                                                controller.currentVersePage +
-                                                    1);
-                                            controller.pageController
-                                                .animateToPage(
-                                              controller.currentVersePage,
-                                              duration:
-                                                  Duration(milliseconds: 400),
-                                              curve: Curves.ease,
-                                            );
-                                          },
-                                          label: "Next 👇🏻")
-                                    ],
-                                  ),
-                                ),
+                                        )
+                                      : SizedBox();
+                                },
                               ),
                             ],
                           ),
@@ -447,6 +266,27 @@ class ReadPage extends GetView<ReadController> {
         ),
       ),
     );
+  }
+
+  void toggleFavoriteVerse(ReadController controller) {
+    var verse = controller.surah.value!.ayahs[controller.verseNumber.value - 1];
+    verse.surahName = controller.surah.value!.name;
+    verse.surahNumber = controller.surah.value!.number;
+    if (!controller.isFavorite.value) {
+      SharedPrefService.addFavoriteVerse(verse);
+      controller.isFavorite.value = SharedPrefService.isFavorite(
+        verse.number,
+        verse.surahName!,
+      );
+    } else {
+      SharedPrefService.removeFavoriteVerse(
+        verse.number,
+      );
+      controller.isFavorite.value = SharedPrefService.isFavorite(
+        verse.number,
+        verse.surahName!,
+      );
+    }
   }
 
   void favoriteVerses() {
@@ -512,61 +352,6 @@ class ReadPage extends GetView<ReadController> {
       ),
       isScrollControlled: true,
       barrierColor: Colors.white.withAlpha(50),
-    );
-  }
-}
-
-class TafssirBottomSheet extends StatelessWidget {
-  const TafssirBottomSheet({
-    super.key,
-    required this.verse,
-    required this.controller,
-  });
-
-  final VerseEntity? verse;
-  final ReadController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.8,
-      width: MediaQuery.of(context).size.width,
-      child: Obx(
-        () => Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                verse!.text,
-                style: AppTextStyles.mediumBoldText,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(
-                height: 10.h,
-              ),
-              controller.isLoading.value
-                  ? Expanded(
-                      child: Center(
-                        child: SizedBox(
-                          width: 25.w,
-                          height: 25.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 4.w,
-                            color: AppColors.secondary,
-                          ),
-                        ),
-                      ),
-                    )
-                  : Text(
-                      controller.tafsirText.value,
-                      style: AppTextStyles.smallBoldText,
-                      textAlign: TextAlign.justify,
-                    ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

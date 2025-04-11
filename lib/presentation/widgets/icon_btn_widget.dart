@@ -10,10 +10,16 @@ class IconButtonWidget extends StatelessWidget {
     this.size = 40,
     required this.icon,
     this.onTap,
+    this.backgroundColor,
+    this.gradient,
+    this.border,
   });
   final double size;
   final Widget icon;
   final VoidCallback? onTap;
+  final Color? backgroundColor;
+  final Gradient? gradient;
+  final Border? border;
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +33,9 @@ class IconButtonWidget extends StatelessWidget {
           width: size.w,
           height: size.w,
           decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.white.withAlpha(155),
-            ),
+            color: backgroundColor,
+            gradient: gradient,
+            border: border,
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: Center(

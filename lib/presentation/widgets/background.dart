@@ -33,8 +33,16 @@ class Background extends StatelessWidget {
             width: MediaQuery.of(context).size.height,
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              // color: Colors.white.withOpacity(0.3),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.9),
+                  blurRadius: 20,
+                  spreadRadius: 10,
+                  offset: Offset(0, 0),
+                ),
+              ],
             ),
           ),
         ),
