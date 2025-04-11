@@ -71,7 +71,7 @@ class ReadPage extends GetView<ReadController> {
                                 itemCount:
                                     controller.surah.value!.ayahs.length + 1,
                                 scrollDirection: Axis.vertical,
-                                physics: PageScrollPhysics(),
+                                physics: const PageScrollPhysics(),
                                 onPageChanged: (value) {
                                   controller.isSurahCompleted.value = value ==
                                       controller.surah.value!.ayahs.length;
@@ -83,7 +83,8 @@ class ReadPage extends GetView<ReadController> {
                                       controller.surah.value!.ayahs[0].number,
                                       controller.surah.value!.name,
                                     );
-                                  } else {
+                                  } else if (value <
+                                      controller.surah.value!.ayahs.length) {
                                     controller.isFavorite.value =
                                         SharedPrefService.isFavorite(
                                       controller

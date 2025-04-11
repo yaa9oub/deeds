@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../core/constants/colors.dart';
 import '../../domain/repositories/chat_repo.dart';
 import '../widgets/background.dart';
@@ -23,9 +24,91 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Theme(
+        data: Theme.of(context).copyWith(
+          drawerTheme: DrawerThemeData(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0.r),
+            ),
+          ),
+        ),
+        child: Drawer(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 50.h,
+                ),
+                Text(
+                  'Saved Chats',
+                  style: AppTextStyles.midBoldText,
+                ),
+                Divider(
+                  color: AppColors.primary,
+                ),
+                Expanded(
+                  child: Obx(
+                    () => controller.savedChats.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No saved chats',
+                              style: AppTextStyles.smallMidText,
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: controller.savedChats.length,
+                            itemBuilder: (context, index) {
+                              final chat = controller.savedChats[index];
+                              return Dismissible(
+                                key: Key(chat.id),
+                                direction: DismissDirection.endToStart,
+                                background: Container(
+                                  color: Colors.red,
+                                  alignment: Alignment.centerRight,
+                                  padding: EdgeInsets.only(right: 20.w),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                onDismissed: (direction) {
+                                  controller.deleteChat(chat.id);
+                                },
+                                child: ListTile(
+                                  title: Text(
+                                    chat.title,
+                                    style: AppTextStyles.smallMidText,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text(
+                                    DateFormat('MMM dd, yyyy - hh:mm a')
+                                        .format(chat.timestamp),
+                                    style: AppTextStyles.smallMidText.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    controller.loadChat(chat);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: Stack(
         children: [
-          Background(),
+          const Background(),
           Column(
             children: [
               //app bar
@@ -43,7 +126,7 @@ class ChatPage extends StatelessWidget {
                           onTap: () {
                             Get.back();
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             CupertinoIcons.back,
                           ),
                         ),
@@ -56,11 +139,36 @@ class ChatPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    IconButtonWidget(
-                      icon: Icon(
-                        CupertinoIcons.add_circled,
-                      ),
-                    ),
+                    Row(
+                      children: [
+                        //new chat button
+                        IconButtonWidget(
+                          onTap: () {
+                            controller.startNewChat();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Started a new chat'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            CupertinoIcons.add_circled,
+                          ),
+                        ),
+                        //saved chats button
+                        Builder(
+                          builder: (context) => IconButtonWidget(
+                            onTap: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            icon: const Icon(
+                              CupertinoIcons.collections,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -81,14 +189,14 @@ class ChatPage extends StatelessWidget {
                               child: TypingText(
                                 text:
                                     "Hello I'm Bilel, an AI companion that helps you with your questions about Islam. Ask me anything!",
-                                speed: Duration(milliseconds: 10),
+                                speed: const Duration(milliseconds: 10),
                                 textStyle: AppTextStyles.smallBoldText,
                               ),
                             ),
                           ],
                         )
                       : ListView.separated(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           controller: controller
                               .scrollController, // Attach ScrollController
                           separatorBuilder: (context, index) {
@@ -108,7 +216,7 @@ class ChatPage extends StatelessWidget {
                                 constraints: BoxConstraints(
                                   maxWidth: 300.w,
                                 ),
-                                margin: EdgeInsets.symmetric(vertical: 4),
+                                margin: const EdgeInsets.symmetric(vertical: 4),
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 20.w,
                                   vertical: 10.h,
@@ -126,13 +234,13 @@ class ChatPage extends StatelessWidget {
                                       color: Colors.white.withAlpha(50),
                                       spreadRadius: 0,
                                       blurRadius: 0,
-                                      offset: Offset(-3.5, -3.5),
+                                      offset: const Offset(-3.5, -3.5),
                                     ),
                                     BoxShadow(
                                       color: Colors.white.withAlpha(50),
                                       spreadRadius: 0,
                                       blurRadius: 0,
-                                      offset: Offset(3.5, 3.5),
+                                      offset: const Offset(3.5, 3.5),
                                     ),
                                   ],
                                 ),
@@ -217,7 +325,7 @@ class ChatPage extends StatelessWidget {
                 child: CardWidget(
                   width: MediaQuery.of(context).size.width,
                   height: 65.h,
-                  padding: EdgeInsets.symmetric(),
+                  padding: const EdgeInsets.symmetric(),
                   content: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -317,7 +425,7 @@ class _TypingTextState extends State<TypingText> {
       displayedText,
       textAlign: TextAlign.center,
       style: widget.textStyle ??
-          TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
     );
   }
 }

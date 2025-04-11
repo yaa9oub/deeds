@@ -31,4 +31,19 @@ class AppTextStyles {
     fontWeight: FontWeight.w300,
     color: Colors.black,
   );
+
+  static const TextStyle smallText = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+  );
+
+  // static const TextStyle smallMidText = TextStyle(
+  //   fontSize: 14,
+  //   fontWeight: FontWeight.w500,
+  // );
+
+  // static const TextStyle mediumBoldText = TextStyle(
+  //   fontSize: 16,
+  //   fontWeight: FontWeight.w600,
+  // );
 }

@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+import '../../domain/models/chat_history.dart';
 import '../../domain/repositories/chat_repo.dart';
 
 class ChatController extends GetxController {
@@ -31,8 +36,72 @@ class ChatController extends GetxController {
 
   var messages = <Map<String, String>>[].obs;
   var isLoading = false.obs;
+  var savedChats = <ChatHistory>[].obs;
+  String? currentChatId;
 
   final ScrollController scrollController = ScrollController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadSavedChats();
+  }
+
+  void loadSavedChats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final chatsJson = prefs.getStringList('saved_chats') ?? [];
+    savedChats.value = chatsJson.map((json) {
+      final Map<String, dynamic> decoded = jsonDecode(json);
+      return ChatHistory.fromJson(decoded);
+    }).toList();
+  }
+
+  Future<void> saveCurrentChat() async {
+    if (messages.isEmpty) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final uuid = currentChatId ?? const Uuid().v4();
+    currentChatId = uuid;
+
+    // Generate title from first message
+    final firstMessage = messages.first['content'] ?? '';
+    final title = firstMessage.length > 30
+        ? '${firstMessage.substring(0, 30)}...'
+        : firstMessage;
+
+    final chatHistory = ChatHistory(
+      id: uuid,
+      title: title,
+      messages: messages.toList(),
+      timestamp: DateTime.now(),
+    );
+
+    // Remove existing chat if it exists
+    savedChats.removeWhere((chat) => chat.id == uuid);
+    savedChats.add(chatHistory);
+
+    final chatsJson =
+        savedChats.map((chat) => jsonEncode(chat.toJson())).toList();
+    await prefs.setStringList('saved_chats', chatsJson);
+  }
+
+  void loadChat(ChatHistory chat) {
+    messages.value = chat.messages;
+    currentChatId = chat.id;
+  }
+
+  void startNewChat() {
+    messages.clear();
+    currentChatId = null;
+  }
+
+  void deleteChat(String id) async {
+    savedChats.removeWhere((chat) => chat.id == id);
+    final prefs = await SharedPreferences.getInstance();
+    final chatsJson =
+        savedChats.map((chat) => jsonEncode(chat.toJson())).toList();
+    await prefs.setStringList('saved_chats', chatsJson);
+  }
 
   void scrollToBottom() {
     Future.delayed(Duration(milliseconds: 300), () {
@@ -84,6 +153,8 @@ class ChatController extends GetxController {
     try {
       final response = await chatRepository.getBotResponse(messages);
       messages.add({'role': 'assistant', 'content': response});
+      // Auto-save after each message
+      await saveCurrentChat();
     } catch (e) {
       messages.add(
           {'role': 'assistant', 'content': 'Error: Failed to get response.'});
