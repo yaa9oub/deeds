@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
 import 'dart:io';
 import 'dart:typed_data';
+import 'env.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();

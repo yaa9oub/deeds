@@ -16,7 +16,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.read,
-      page: () => const ReadPage(),
+      page: () => ReadPage(),
       binding: ReadBinding(),
     ),
     GetPage(

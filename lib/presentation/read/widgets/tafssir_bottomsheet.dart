@@ -22,42 +22,47 @@ class TafssirBottomSheet extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.8,
       width: MediaQuery.of(context).size.width,
       child: Obx(
-        () => Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  verse!.text,
-                  style: AppTextStyles.mediumBoldText,
-                  textAlign: TextAlign.center,
+        () => controller.isLoading.value
+            ? Expanded(
+                child: Center(
+                  child: SizedBox(
+                    width: 25.w,
+                    height: 25.w,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 4.w,
+                      color: AppColors.secondary,
+                    ),
+                  ),
                 ),
-                SizedBox(
-                  height: 10.h,
-                ),
-                controller.isLoading.value
-                    ? Expanded(
-                        child: Center(
-                          child: SizedBox(
-                            width: 25.w,
-                            height: 25.w,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 4.w,
-                              color: AppColors.secondary,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Text(
+              )
+            : Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        verse!.text,
+                        style: AppTextStyles.mediumBoldText,
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        verse!.translation,
+                        style: AppTextStyles.smallBoldText,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 50.h,
+                      ),
+                      Text(
                         controller.tafsirText.value,
                         style: AppTextStyles.smallBoldText,
                         textAlign: TextAlign.justify,
                       ),
-              ],
-            ),
-          ),
-        ),
+                    ],
+                  ),
+                ),
+              ),
       ),
     );
   }

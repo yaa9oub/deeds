@@ -1,3 +1,5 @@
+import 'package:deeds/core/constants/assets.dart';
+import 'package:deeds/core/constants/colors.dart';
 import 'package:deeds/core/constants/text.dart';
 import 'package:deeds/domain/entities/surah_entity.dart';
 import 'package:deeds/presentation/widgets/card_widget.dart';
@@ -9,10 +11,12 @@ class VerseContent extends StatelessWidget {
     super.key,
     required this.scrollController,
     required this.verse,
+    this.isShare = false,
   });
 
   final ScrollController scrollController;
   final VerseEntity? verse;
+  final bool isShare;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +26,7 @@ class VerseContent extends StatelessWidget {
         vertical: 5.h,
       ),
       child: CardWidget(
+        isShare: isShare,
         width: MediaQuery.of(context).size.width,
         padding: EdgeInsets.symmetric(
           horizontal: 10.w,
@@ -35,7 +40,7 @@ class VerseContent extends StatelessWidget {
           width: double.infinity,
           child: Scrollbar(
             thumbVisibility: true,
-            radius: Radius.circular(999),
+            radius: const Radius.circular(999),
             thickness: 2.w,
             controller: scrollController,
             child: SingleChildScrollView(
@@ -66,6 +71,33 @@ class VerseContent extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
+                    if (isShare)
+                      Column(
+                        children: [
+                          SizedBox(
+                            height: 30.h,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(
+                                AppAssets.logo,
+                                color: AppColors.primary,
+                                width: 30.w,
+                                height: 30.h,
+                              ),
+                              SizedBox(
+                                width: 10.w,
+                              ),
+                              Text(
+                                "Deeds",
+                                style: AppTextStyles.midBoldText,
+                              )
+                            ],
+                          ),
+                        ],
+                      )
                   ],
                 ),
               ),

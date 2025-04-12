@@ -228,7 +228,7 @@ class HomePage extends GetView<HomeController> {
   Widget _buildPrayerSettings() {
     return SizedBox(
       width: double.infinity,
-      height: 50.h,
+      height: 60.h,
       child: Column(
         children: [
           Row(

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:blur/blur.dart';
-import 'package:deeds/core/constants/assets.dart';
 import 'package:deeds/core/constants/text.dart';
 import 'package:deeds/presentation/chat/chat_controller.dart';
 import 'package:deeds/presentation/widgets/card_widget.dart';

@@ -1,11 +1,15 @@
 import 'dart:convert';
 
+import 'package:deeds/core/constants/text.dart';
+import 'package:deeds/presentation/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../domain/models/chat_history.dart';
 import '../../domain/repositories/chat_repo.dart';
+import '../../core/utils/shared_prefs.dart';
 
 class ChatController extends GetxController {
   final ChatRepository chatRepository;
@@ -38,6 +42,7 @@ class ChatController extends GetxController {
   var isLoading = false.obs;
   var savedChats = <ChatHistory>[].obs;
   String? currentChatId;
+  int requestCount = 0;
 
   final ScrollController scrollController = ScrollController();
 
@@ -45,6 +50,81 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
     loadSavedChats();
+    loadRequestCount();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showSupportDialog();
+    });
+  }
+
+  void loadRequestCount() async {
+    requestCount = SharedPrefService.getInt('chat_request_count') ?? 0;
+  }
+
+  void incrementRequestCount() async {
+    requestCount++;
+    await SharedPrefService.saveInt('chat_request_count', requestCount);
+
+    if (requestCount % 3 == 0) {
+      showSupportDialog();
+    }
+  }
+
+  void showSupportDialog() {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: EdgeInsets.all(20.w),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(20.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "The app is totally free",
+                style: AppTextStyles.midBoldText,
+              ),
+              SizedBox(height: 10.h),
+              Text(
+                "Your contribution will help me keep on improving the app",
+                style: AppTextStyles.smallBoldText.copyWith(
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      "Maybe Later",
+                      style: AppTextStyles.smallBoldText.copyWith(
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  PrimaryButton(
+                    label: "Contribute",
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void loadSavedChats() async {
@@ -115,6 +195,7 @@ class ChatController extends GetxController {
     });
   }
 
+/*
   void sendHuggingMessage(String text) async {
     if (text.isEmpty) return;
 
@@ -137,7 +218,7 @@ class ChatController extends GetxController {
     messages.add({'role': 'bot', 'content': response});
     isLoading.value = false;
   }
-
+*/
   void sendMessage(String text) async {
     if (text.isEmpty) return;
 
@@ -155,6 +236,8 @@ class ChatController extends GetxController {
       messages.add({'role': 'assistant', 'content': response});
       // Auto-save after each message
       await saveCurrentChat();
+      // Increment request counter
+      incrementRequestCount();
     } catch (e) {
       messages.add(
           {'role': 'assistant', 'content': 'Error: Failed to get response.'});
