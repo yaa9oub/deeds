@@ -30,11 +30,7 @@ Deeds will soon be available on the Google Play Store and Apple App Store. Stay 
 
 ## Sneek peak
 
-![iMockup - Google Pixel 8 Pro](https://github.com/user-attachments/assets/63142e40-9be6-4206-b390-44ce8289d10a)
-![iMockup - Google Pixel 8 Pro (1)](https://github.com/user-attachments/assets/8833cd16-140a-4ea1-adc2-2e38836d6d73)
-![iMockup - Google Pixel 8 Pro (2)](https://github.com/user-attachments/assets/f13dbaf7-99c7-4be5-9700-19981d022e55)
-![iMockup - Google Pixel 8 Pro (3)](https://github.com/user-attachments/assets/93cf70a9-9740-405a-a10b-ae89d224a093)
-![iMockup - Google Pixel 8 Pro (4)](https://github.com/user-attachments/assets/2512d974-6a99-4173-843e-f1d4dfc2e294)
-![iMockup - Google Pixel 8 Pro (5)](https://github.com/user-attachments/assets/30043e0a-a8b3-42f3-95e7-e07a66fd9f67)
-![iMockup - Google Pixel 8 Pro (7)](https://github.com/user-attachments/assets/dab33c64-a70b-4b4f-950f-1c92cb3ecddc)
-![iMockup - Google Pixel 8 Pro (6)](https://github.com/user-attachments/assets/be515156-f8d8-4f2f-93db-efa84ca54420)
+![1](https://github.com/user-attachments/assets/25c9a9a4-9623-4e34-b567-6806f00622df)
+![2](https://github.com/user-attachments/assets/ebce0d92-6275-4e34-ab04-f0ccaf0de5fc)
+![3](https://github.com/user-attachments/assets/d3585941-d7d6-4d97-9aff-8a6c71d08757)
+
