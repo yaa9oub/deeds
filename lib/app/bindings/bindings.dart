@@ -1,4 +1,8 @@
+import 'package:deeds/core/utils/notifications.dart';
+import 'package:deeds/data/repositories/prayer_timing_repository_impl.dart';
+import 'package:deeds/domain/repositories/prayer_timing_repository.dart';
 import 'package:deeds/domain/repositories/surah_repo.dart';
+import 'package:deeds/domain/usecases/get_prayer_timings_usecase.dart';
 import 'package:deeds/presentation/chat/chat_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
@@ -12,10 +16,32 @@ import '../../presentation/home/home_controller.dart';
 import '../../presentation/read/read_controller.dart';
 import '../../presentation/splash/splash_controller.dart';
 
-class HomeBinding implements Bindings {
+class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<HomeController>(() => HomeController());
+    // Register Dio instance
+    Get.lazyPut<Dio>(() => Dio());
+
+    // Register NotificationService
+    Get.lazyPut<NotificationService>(() => NotificationService());
+
+    // Register PrayerTimingRepository
+    Get.lazyPut<PrayerTimingRepository>(
+      () => PrayerTimingRepositoryImpl(
+        Get.find<Dio>(),
+        Get.find<NotificationService>(),
+      ),
+    );
+
+    // Register GetPrayerTimingsUseCase
+    Get.lazyPut<GetPrayerTimingsUseCase>(
+      () => GetPrayerTimingsUseCase(Get.find<PrayerTimingRepository>()),
+    );
+
+    // Register HomeController
+    Get.lazyPut<HomeController>(
+      () => HomeController(Get.find<GetPrayerTimingsUseCase>()),
+    );
   }
 }
 

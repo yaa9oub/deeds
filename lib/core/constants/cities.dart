@@ -1,0 +1,27 @@
+// Constants
+final List<String> tunisianGovernorates = [
+  "Tunis",
+  "Sfax",
+  "Sousse",
+  "Ariana",
+  "Monastir",
+  "Kairouan",
+  "Bizerte",
+  "Gabès",
+  "Kasserine",
+  "Mednine",
+  "Zaghouan",
+  "Medenine",
+  "Jendouba",
+  "Tozeur",
+  "Nabeul",
+  "Mahdia",
+  "Gafsa",
+  "El Kef",
+  "Siliana",
+  "Tataouine",
+  "Beja",
+  "Ben Arous",
+  "La Manouba",
+  "Sidi Bouzid"
+];

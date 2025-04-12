@@ -1,19 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import '../../core/utils/env.dart';
 
 class ChatRemoteDataSource {
-  final String apiUrl =
-      "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill";
-  final String apiKey =
-      "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"; // Replace with your key
-
   Future<String> fetchBotResponse(String message) async {
     print(message);
     final response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse(Env.huggingfaceApiUrl),
       headers: {
-        "Authorization": "Bearer $apiKey",
+        "Authorization": "Bearer ${Env.huggingfaceApiKey}",
         "Content-Type": "application/json",
       },
       body: jsonEncode({"inputs": message}),
@@ -34,18 +30,14 @@ class ChatRemoteDataSource {
   }
 
   Future<String> getBotResponse(List<Map<String, String>> messages) async {
-    final String apiKey =
-        "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"; // Replace with your API key
-    final String model = "gpt-3.5-turbo"; // Use gpt-4 if needed
-    const String apiUrl = "https://api.openai.com/v1/chat/completions";
-
     // Format messages for OpenAI API
     List<Map<String, String>> formattedMessages = [
       {
         "role": "system",
-        "content": "You are a helpful teacher in islamic studies, in 50 words max, "
+        "content": "You are a helpful teacher in islamic studies, act like the companion Bilel of the prophet muhammed, "
             "especially understanding and explaining Quran. Only answer questions related to islam,  "
             "Quran, Prophet Muhammed, Allah, Prayers, Islamic habbits, Religion . Ignore unrelated topics."
+            "If the user asks about a specific surah, provide the surah name, number of verses, and a brief explanation of the surah."
       },
       ...messages.map((msg) {
         return {"role": msg['role']!, "content": msg['content']!};
@@ -54,15 +46,15 @@ class ChatRemoteDataSource {
 
     // API request body
     final Map<String, dynamic> requestBody = {
-      "model": model,
+      "model": Env.openaiModel,
       "messages": formattedMessages,
-      "temperature": 0.7 // Adjust for creativity (0 = strict, 1 = very random)
+      "temperature": 0 // Adjust for creativity (0 = strict, 1 = very random)
     };
 
     final response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse(Env.openaiApiUrl),
       headers: {
-        "Authorization": "Bearer $apiKey",
+        "Authorization": "Bearer ${Env.openaiApiKey}",
         "Content-Type": "application/json",
       },
       body: jsonEncode(requestBody),
@@ -77,11 +69,6 @@ class ChatRemoteDataSource {
   }
 
   Future<String> getTafssir(String message) async {
-    final String apiKey =
-        "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"; // Replace with your API key
-    final String model = "gpt-3.5-turbo"; // Use gpt-4 if needed
-    const String apiUrl = "https://api.openai.com/v1/chat/completions";
-
     // Format messages for OpenAI API
     List<Map<String, String>> formattedMessages = [
       {
@@ -93,20 +80,19 @@ class ChatRemoteDataSource {
 
     // API request body
     final Map<String, dynamic> requestBody = {
-      "model": model,
+      "model": Env.openaiModel,
       "messages": formattedMessages,
       "temperature": 0 // Adjust for creativity (0 = strict, 1 = very random)
     };
 
     final response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse(Env.openaiApiUrl),
       headers: {
-        "Authorization": "Bearer $apiKey",
+        "Authorization": "Bearer ${Env.openaiApiKey}",
         "Content-Type": "application/json",
       },
       body: jsonEncode(requestBody),
     );
-    print(response.body);
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       return responseData["choices"][0]["message"]["content"];

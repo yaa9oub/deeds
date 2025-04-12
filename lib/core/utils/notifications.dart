@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
 import 'dart:io';
+import 'dart:typed_data';
+import 'env.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -88,16 +90,16 @@ class NotificationService {
     required int id,
     required String title,
     required String body,
-    required TZDateTime scheduledTime,
+    required DateTime scheduledTime,
+    bool isReminder = false,
   }) async {
-    // await flutterLocalNotificationsPlugin.cancelAll();
     final Int64List vibrationPattern = Int64List(4);
     vibrationPattern[0] = 0;
     vibrationPattern[1] = 4000;
     vibrationPattern[2] = 4000;
     vibrationPattern[3] = 4000;
 
-    AndroidNotificationDetails androidNotificationDetails =
+    final AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       'prayer_channel_id',
       'Prayer Notifications',
@@ -110,17 +112,18 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.max,
       showWhen: true,
-      // fullScreenIntent: true,
     );
+
+    final TZDateTime tzTime = TZDateTime.from(scheduledTime, local);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
       body,
-      scheduledTime,
+      tzTime,
       NotificationDetails(
         android: androidNotificationDetails,
-        iOS: DarwinNotificationDetails(),
+        iOS: const DarwinNotificationDetails(),
       ),
       androidScheduleMode: AndroidScheduleMode.alarmClock,
       uiLocalNotificationDateInterpretation:
@@ -128,6 +131,8 @@ class NotificationService {
       matchDateTimeComponents: DateTimeComponents.time,
       payload: "",
     );
+
+    print("✅ Scheduled notification: $title at $tzTime");
   }
 
   /// **Cancel a specific notification**

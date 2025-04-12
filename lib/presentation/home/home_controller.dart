@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deeds/core/constants/all_surahs.dart';
 import 'package:deeds/core/constants/assets.dart';
+import 'package:deeds/core/constants/consts.dart';
 import 'package:deeds/core/utils/shared_prefs.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
@@ -9,138 +11,178 @@ import 'package:timezone/timezone.dart';
 
 import '../../core/utils/notifications.dart';
 import '../../data/models/prayer.dart';
+import '../../domain/entities/prayer_timing.dart';
 import '../../domain/entities/surah_entity.dart';
+import '../../domain/usecases/get_prayer_timings_usecase.dart';
 
 class HomeController extends GetxController {
-  Rx<int> deeds = 0.obs;
-  Rx<int> surahs = 0.obs;
-  Rx<int> pages = 0.obs;
-  Rx<int> verseNumber = 1.obs;
-  Rx<bool> isLoading = false.obs;
-  var prayers = <Prayer>[].obs;
-  var surah = Rx<SurahEntity?>(null);
+  final GetPrayerTimingsUseCase _getPrayerTimingsUseCase;
 
-  Rx<Prayer> currentPrayer = Prayer(
-          label: "label",
-          icon: AppAssets.asr,
-          time: "time",
-          isAlarm: false,
-          isReminder: false)
-      .obs;
-  Rx<Prayer> nextPrayer = Prayer(
-          label: "label",
-          icon: AppAssets.asr,
-          time: "time",
-          isAlarm: false,
-          isReminder: false)
-      .obs;
+  HomeController(this._getPrayerTimingsUseCase);
 
-  Rx<String> city = "Sousse".obs;
+  // overview variables
+  final Rx<int> deeds = 0.obs;
+  final Rx<int> surahsNumber = 0.obs;
+  final Rx<int> pages = 0.obs;
+  // last read variables
+  final Rx<int> verseNumber = 1.obs;
+  final Rx<int> surahNumber = 1.obs;
+  final Rx<String> surahName = "Surah name".obs;
+  final Rx<int> surahLength = 7.obs;
+  //prayers list variables
+  final Rx<String> city = "Tunis".obs;
+  final RxList<PrayerTiming> prayers = <PrayerTiming>[].obs;
+  final Rx<SurahEntity?> surah = Rx<SurahEntity?>(null);
+  // surah selector variables
+  final Rx<int> selectedSurah = 1.obs;
+  final Rx<int> selectedVerse = 1.obs;
 
-  List<String> tunisianGovernorates = [
-    "Tunis",
-    "Sfax",
-    "Sousse",
-    "Ariana",
-    "Monastir",
-    "Kairouan",
-    "Bizerte",
-    "Gabès",
-    "Kasserine",
-    "Mednine",
-    "Zaghouan",
-    "Medenine",
-    "Jendouba",
-    "Tozeur",
-    "Nabeul",
-    "Mahdia",
-    "Gafsa",
-    "El Kef",
-    "Siliana",
-    "Tataouine",
-    "Beja",
-    "Ben Arous",
-    "La Manouba",
-    "Sidi Bouzid"
-  ];
-
-  var selectedSurah = 1.obs;
-  var selectedVerse = 1.obs;
-
-  // Method to update the selected value
-  void updateSelectedSurah(int value) {
-    selectedSurah.value = value;
-  }
-
-  void updateSelectedVerse(int value) {
-    selectedVerse.value = value;
-  }
-
+  final Rx<bool> isLoading = false.obs;
   @override
-  onInit() async {
+  void onInit() async {
     super.onInit();
-    await searchForLocation("Sousse");
+    await _initializeData();
+  }
 
-    if (SharedPrefService.getString("surah") != null) {
-      surah.value = SurahEntity.fromJson(
-          jsonDecode(SharedPrefService.getString("surah") ?? ""));
+  Future<void> _initializeData() async {
+    // Load saved prayer toggle states
+    city.value =
+        SharedPrefService.getString(LocalVariables.city.name) ?? "Tunis";
+    await searchForLocation(city.value);
+    _loadPrayerToggleStates();
+    _loadSavedData();
+  }
+
+  void _loadSavedData() {
+    //last read variables initialization
+    surahName.value =
+        SharedPrefService.getString(LocalVariables.surahName.name) ??
+            surahs[0]["name"];
+    surahNumber.value =
+        SharedPrefService.getInt(LocalVariables.surahNumber.name) ??
+            surahs[0]["id"];
+    surahLength.value =
+        SharedPrefService.getInt(LocalVariables.surahLength.name) ??
+            surahs[0]["verses"];
+    verseNumber.value =
+        SharedPrefService.getInt(LocalVariables.verseNumber.name) ?? 1;
+    // overview variables initialization
+    deeds.value = SharedPrefService.getInt(LocalVariables.deeds.name) ?? 0;
+    surahsNumber.value =
+        SharedPrefService.getInt(LocalVariables.surahs.name) ?? 0;
+    pages.value = SharedPrefService.getInt(LocalVariables.pages.name) ?? 0;
+  }
+
+  // Load prayer toggle states from SharedPrefs
+  void _loadPrayerToggleStates() {
+    final savedAlarms = SharedPrefService.getString("prayer_alarms");
+    final savedReminders = SharedPrefService.getString("prayer_reminders");
+
+    if (savedAlarms != null && savedReminders != null) {
+      final alarmMap = jsonDecode(savedAlarms) as Map<String, dynamic>;
+      final reminderMap = jsonDecode(savedReminders) as Map<String, dynamic>;
+
+      // Apply saved states to prayers
+      for (int i = 0; i < prayers.length; i++) {
+        final prayer = prayers[i];
+        final prayerKey = "${prayer.label}_${prayer.time}";
+
+        final isAlarm = alarmMap[prayerKey] ?? false;
+        final isReminder = reminderMap[prayerKey] ?? false;
+
+        prayers[i] = prayer.copyWith(
+          isAlarm: isAlarm,
+          isReminder: isReminder,
+        );
+      }
+      prayers.refresh();
     }
-    verseNumber.value = SharedPrefService.getInt("verseNumber") ?? 1;
-    deeds.value = SharedPrefService.getInt("deeds") ?? 0;
-    surahs.value = SharedPrefService.getInt("surahs") ?? 0;
-    pages.value = SharedPrefService.getInt("pages") ?? 0;
+  }
+
+  // Save prayer toggle states to SharedPrefs
+  void _savePrayerToggleStates() {
+    final alarmMap = <String, bool>{};
+    final reminderMap = <String, bool>{};
+
+    for (final prayer in prayers) {
+      final prayerKey = "${prayer.label}_${prayer.time}";
+      alarmMap[prayerKey] = prayer.isAlarm;
+      reminderMap[prayerKey] = prayer.isReminder;
+    }
+
+    SharedPrefService.saveString("prayer_alarms", jsonEncode(alarmMap));
+    SharedPrefService.saveString("prayer_reminders", jsonEncode(reminderMap));
   }
 
   Future<void> searchForLocation(String city) async {
     isLoading.value = true;
     try {
-      final dio = Dio();
-      final response = await dio.get(
-        'https://api.aladhan.com/v1/timingsByCity',
-        queryParameters: {
-          'city': city,
-          'country': 'Tunisia',
-        },
-      );
+      final prayerTimings =
+          await _getPrayerTimingsUseCase.call(city, "Tunisia");
+      prayers.value = prayerTimings;
 
-      final data = response.data['data']['timings'];
-
-      List<Prayer> prayerTimes = [
-        Prayer(label: "Imsak", icon: AppAssets.imsak, time: data['Imsak']),
-        Prayer(label: "Fajr", icon: AppAssets.fajr, time: data['Fajr']),
-        Prayer(label: "Sunrise", icon: AppAssets.sun, time: data['Sunrise']),
-        Prayer(label: "Dhuhr", icon: AppAssets.dhuhr, time: data['Dhuhr']),
-        Prayer(label: "Asr", icon: AppAssets.asr, time: data['Asr']),
-        Prayer(
-            label: "Maghrib", icon: AppAssets.maghreb, time: data['Maghrib']),
-        Prayer(label: "Isha", icon: AppAssets.icha, time: data['Isha']),
-      ];
-
-      prayers.value = prayerTimes;
+      // After loading new prayer timings, apply saved toggle states
+      _loadPrayerToggleStates();
     } catch (e) {
-      print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to fetch prayer timings',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
     }
-    isLoading.value = false;
   }
 
   void toggleAlarm(int index) {
-    prayers[index].isAlarm = !prayers[index].isAlarm;
-    prayers.refresh(); // Update UI
+    final prayer = prayers[index];
+    prayers[index] = prayer.copyWith(isAlarm: !prayer.isAlarm);
+    prayers.refresh();
+
+    // Save the updated state
+    _savePrayerToggleStates();
+
+    // Schedule or cancel notification
     if (prayers[index].isAlarm) {
-      schedulePrayerNotification(prayers[index], index, isReminder: false);
+      schedulePrayerNotification(
+        Prayer(
+          label: prayer.label,
+          icon: prayer.icon,
+          time: prayer.time,
+          isAlarm: true,
+          isReminder: prayer.isReminder,
+        ),
+        index,
+        isReminder: false,
+      );
     } else {
-      NotificationService()
-          .cancelNotification(index * 2 + 1); // Cancel exact time alarm
+      NotificationService().cancelNotification(index * 2 + 1);
     }
   }
 
   void toggleReminder(int index) {
-    prayers[index].isReminder = !prayers[index].isReminder;
-    prayers.refresh(); // Update UI
+    final prayer = prayers[index];
+    prayers[index] = prayer.copyWith(isReminder: !prayer.isReminder);
+    prayers.refresh();
+
+    // Save the updated state
+    _savePrayerToggleStates();
+
+    // Schedule or cancel notification
     if (prayers[index].isReminder) {
-      schedulePrayerNotification(prayers[index], index, isReminder: true);
+      schedulePrayerNotification(
+        Prayer(
+          label: prayer.label,
+          icon: prayer.icon,
+          time: prayer.time,
+          isAlarm: prayer.isAlarm,
+          isReminder: true,
+        ),
+        index,
+        isReminder: true,
+      );
     } else {
-      NotificationService().cancelNotification(index * 2); // Cancel reminder
+      NotificationService().cancelNotification(index * 2 + 2);
     }
   }
 

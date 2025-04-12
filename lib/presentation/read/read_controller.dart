@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:deeds/core/constants/all_surahs.dart';
+import 'package:deeds/core/constants/consts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/utils/shared_prefs.dart';
@@ -17,17 +19,27 @@ class ReadController extends GetxController {
   var isLoading = false.obs;
 
   List<VerseEntity> favoriteVerses = [];
-
-  var surah = Rx<SurahEntity?>(null);
+  // local tracking variables
+  Rx<int> currentDeeds = 0.obs;
+  Rx<int> currentSurah = 0.obs;
+  Rx<int> currentPage = 0.obs;
+  int currentPageNumber = 0;
+  // reading variables
+  Rx<String> surahName = "Al-Fatihah".obs;
   Rx<int> surahNumber = 1.obs;
   Rx<int> verseNumber = 1.obs;
-  Rx<int> deeds = 0.obs;
-  Rx<int> surahs = 0.obs;
-  Rx<int> page = 0.obs;
+  Rx<int> surahLength = 7.obs;
+  //fetched surah
+  var surah = Rx<SurahEntity?>(null);
+  //reading view variables
   int currentVersePage = 0;
 
   Rx<bool> isFavorite = false.obs;
   Rx<bool> isReadOnly = true.obs;
+
+  //is surah completed
+  Rx<bool> isSurahCompleted = false.obs;
+  int verseIndex = 0;
 
   PageController pageController = PageController();
 
@@ -35,19 +47,36 @@ class ReadController extends GetxController {
   void onInit() async {
     super.onInit();
     // SharedPrefService.clearAll();
-    page.value = SharedPrefService.getInt("pages") ?? 0;
+    // reading variables
+    surahName.value =
+        SharedPrefService.getString(LocalVariables.surahName.name) ??
+            surahs[0]["name"];
+    surahNumber.value =
+        SharedPrefService.getInt(LocalVariables.surahNumber.name) ??
+            surahs[0]["id"];
+    surahLength.value =
+        SharedPrefService.getInt(LocalVariables.surahLength.name) ??
+            surahs[0]["verses"];
+    verseNumber.value =
+        SharedPrefService.getInt(LocalVariables.verseNumber.name) ?? 1;
+
+    // favorites
     favoriteVerses = SharedPrefService.getFavoriteVerses();
-    surahNumber.value = SharedPrefService.getInt("surahNumber") ?? 1;
+    //fetch surah
     await fetchSurah(surahNumber.value);
-    verseNumber.value = SharedPrefService.getInt("verseNumber") ?? 1;
+    //this to handle the deeds caluculation
     currentVersePage = verseNumber.value - 1;
-    if (verseNumber.value != 1) {
+    currentPageNumber = surah.value!.ayahs[currentVersePage].page;
+    //this to handle the page jump
+    if (verseNumber.value == 1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        pageController.jumpToPage(0);
+      });
+    } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         pageController.jumpToPage(verseNumber.value - 1);
       });
     }
-    deeds.value = SharedPrefService.getInt("deeds") ?? 0;
-    surahs.value = SharedPrefService.getInt("surahs") ?? 0;
   }
 
   Future<void> fetchSurah(int surahId) async {
@@ -67,15 +96,25 @@ class ReadController extends GetxController {
   }
 
   Future<void> nextSurah() async {
-    surahNumber.value = surah.value!.number + 1;
-    verseNumber.value = 1;
-    surahs.value = surah.value!.number;
-    SharedPrefService.saveInt("surahNumber", surah.value!.number + 1);
-    SharedPrefService.saveInt("verseNumber", verseNumber.value);
-    SharedPrefService.saveInt("deeds", deeds.value);
-    SharedPrefService.saveInt("surahs", surahs.value);
+    //next surah
+    if (surahNumber.value < surahs.length) {
+      surahNumber.value = surahNumber.value + 1;
+      surahLength.value = surahs[surahNumber.value - 1]["verses"];
+      surahName.value = surahs[surahNumber.value - 1]["name"];
+      verseNumber.value = 1;
+      currentSurah.value++;
+    } else {
+      surahNumber.value = 1;
+      surahLength.value = surahs[surahNumber.value - 1]["verses"];
+      surahName.value = surahs[surahNumber.value - 1]["name"];
+      verseNumber.value = 1;
+      currentSurah.value = currentSurah.value + 1;
+    }
+
+    //fetch next surah
     currentVersePage = 0;
-    fetchSurah(surahNumber.value);
+    await fetchSurah(surahNumber.value);
+    saveCurrentReading();
   }
 
   Future<void> readVerse(currentVerseId) async {
@@ -84,17 +123,61 @@ class ReadController extends GetxController {
       verseNumber.value = currentVerseId + 1;
     }
 
+    if (currentVerseId != 0) {
+      currentPage.value =
+          surah.value!.ayahs[currentVerseId - 1].page - currentPageNumber;
+    } else {
+      currentPage.value = 0;
+    }
+
     if (currentVerseId <= surahLength && currentVerseId - 1 >= 0) {
-      page.value = surah.value!.ayahs[currentVerseId - 1].page;
       if (currentVersePage < currentVerseId) {
         currentVersePage = currentVerseId;
-        deeds.value = deeds.value +
+        currentDeeds.value = currentDeeds.value +
             surah.value!.ayahs[currentVerseId - 1].text.length * 10;
       }
     }
-    SharedPrefService.saveInt("deeds", deeds.value);
-    SharedPrefService.saveInt("pages", page.value);
-    SharedPrefService.saveInt("verseNumber", verseNumber.value);
-    SharedPrefService.saveString("surah", jsonEncode(surah.value!.toJson()));
+
+    saveCurrentReading();
+  }
+
+  void saveCurrentReading() {
+    SharedPrefService.saveInt(
+        LocalVariables.surahNumber.name, surahNumber.value);
+    SharedPrefService.saveInt(
+        LocalVariables.verseNumber.name, verseNumber.value);
+    SharedPrefService.saveString(
+        LocalVariables.surahName.name, surahName.value);
+    SharedPrefService.saveInt(
+        LocalVariables.surahLength.name, surahLength.value);
+  }
+
+  void saveProgress() {
+    //save the deeds
+    var oldDeeds = SharedPrefService.getInt(LocalVariables.deeds.name);
+    if (oldDeeds == null) {
+      SharedPrefService.saveInt(LocalVariables.deeds.name, currentDeeds.value);
+    } else {
+      SharedPrefService.saveInt(
+        LocalVariables.deeds.name,
+        oldDeeds + currentDeeds.value,
+      );
+    }
+    //save the pages
+    var oldPages = SharedPrefService.getInt(LocalVariables.pages.name);
+    if (oldPages == null) {
+      SharedPrefService.saveInt(LocalVariables.pages.name, currentPage.value);
+    } else {
+      SharedPrefService.saveInt(
+          LocalVariables.pages.name, oldPages + currentPage.value);
+    }
+    //save the surahs
+    var oldSurahs = SharedPrefService.getInt(LocalVariables.surahs.name);
+    if (oldSurahs == null) {
+      SharedPrefService.saveInt(LocalVariables.surahs.name, currentSurah.value);
+    } else {
+      SharedPrefService.saveInt(
+          LocalVariables.surahs.name, oldSurahs + currentSurah.value);
+    }
   }
 }

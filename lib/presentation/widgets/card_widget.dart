@@ -14,11 +14,13 @@ class CardWidget extends StatelessWidget {
     this.width,
     this.margin = EdgeInsets.zero,
     this.padding,
+    this.isShare = false,
   });
   final Widget content;
   final double? height, width;
   final EdgeInsetsGeometry margin;
   final EdgeInsetsGeometry? padding;
+  final bool isShare;
 
   @override
   Widget build(BuildContext context) {
@@ -35,19 +37,39 @@ class CardWidget extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(25.r),
-                child: RepaintBoundary(
-                  child: Blur(
-                    blur: 3,
-                    blurColor: AppColors.cardBgColor,
-                    colorOpacity: 0.2,
-                    child: Container(),
+            if (!isShare)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25.r),
+                  child: RepaintBoundary(
+                    child: Blur(
+                      blur: 3,
+                      blurColor: AppColors.cardBgColor,
+                      colorOpacity: 0.2,
+                      child: Container(),
+                    ),
                   ),
                 ),
               ),
-            ),
+            if (isShare)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25.r),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.cardBgColor.withAlpha(50),
+                          AppColors.cardBgColor,
+                          AppColors.cardBgColor.withAlpha(50),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             Padding(
               padding: padding ??
                   EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
