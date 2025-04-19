@@ -24,11 +24,20 @@ dependencies:
   share_plus: ^7.2.1
   screenshot: ^3.0.0
   flutter_dotenv: ^5.1.0
+  flutter_launcher_icons: ^0.14.3
+  url_launcher: ^6.2.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/png/deeds.png"
+  min_sdk_android: 21  
+
 
 flutter:
   uses-material-design: true
@@ -36,7 +45,7 @@ flutter:
   assets: 
     - assets/png/
     - assets/svg/
-    - assets/.env
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

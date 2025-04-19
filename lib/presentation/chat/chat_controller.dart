@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:deeds/core/constants/text.dart';
 import 'package:deeds/presentation/widgets/primary_button.dart';
@@ -51,9 +52,6 @@ class ChatController extends GetxController {
     super.onInit();
     loadSavedChats();
     loadRequestCount();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showSupportDialog();
-    });
   }
 
   void loadRequestCount() async {
@@ -116,7 +114,24 @@ class ChatController extends GetxController {
                   ),
                   PrimaryButton(
                     label: "Contribute",
-                    onPressed: () {},
+                    onPressed: () async {
+                      try {
+                        final Uri url =
+                            Uri.parse('https://yaa9oub.github.io/portfolio/');
+                        if (!await launchUrl(url,
+                            mode: LaunchMode.externalApplication)) {
+                          throw Exception('Could not launch $url');
+                        }
+                      } catch (e) {
+                        Get.snackbar(
+                          'Error',
+                          'Could not open the contribution link. Please try again later.',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red.withOpacity(0.1),
+                          colorText: Colors.red,
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

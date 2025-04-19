@@ -15,7 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
-  await dotenv.load(fileName: "assets/.env");
+  await dotenv.load(fileName: ".env");
 
   // Initialize timezones
   tz.initializeTimeZones();
@@ -51,7 +51,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: AppRoutes.splash,
         getPages: AppPages.pages,
-        // theme: ThemeData.light(),
+        theme: ThemeData.light(
+          useMaterial3: true,
+        ),
         // darkTheme: ThemeData.dark(),
         defaultTransition: Transition.fade,
       ),
