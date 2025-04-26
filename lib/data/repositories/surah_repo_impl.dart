@@ -1,4 +1,5 @@
 import '../../domain/entities/surah_entity.dart';
+import '../../domain/entities/verse_entity.dart';
 import '../../domain/repositories/surah_repo.dart';
 import '../datasources/surah_datasource.dart';
 
@@ -25,6 +26,19 @@ class SurahRepositoryImpl implements SurahRepository {
             ),
           )
           .toList(),
+    );
+  }
+
+  @override
+  Future<QuranVerseEntity> getVerseByNumber(int verseNumber) async {
+    final verseResponse = await surahDataSource.getVerseByNumber(verseNumber);
+    return QuranVerseEntity(
+      verseNumber: verseResponse.verseNumber,
+      arabicText: verseResponse.arabicText,
+      surahNumber: verseResponse.surahNumber,
+      surahNameArabic: verseResponse.surahNameArabic,
+      surahNameEnglish: verseResponse.surahNameEnglish,
+      numberInSurah: verseResponse.numberInSurah,
     );
   }
 }

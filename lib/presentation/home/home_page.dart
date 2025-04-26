@@ -1,4 +1,5 @@
 import 'package:deeds/app/routes/app_urls.dart';
+import 'package:deeds/core/constants/colors.dart';
 import 'package:deeds/core/constants/text.dart';
 import 'package:deeds/presentation/currentPrayerWidget/current_prayer_ui.dart';
 import 'package:deeds/presentation/home/widgets/cities_bottom_sheet.dart';
@@ -94,14 +95,67 @@ class HomePage extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 15.h,
         children: [
-          Text(
-            "Your daily verse",
-            style: AppTextStyles.midBoldText.copyWith(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Your daily verse",
+                style: AppTextStyles.midBoldText,
+              ),
+              Obx(
+                () => InkWell(
+                  onTap: () {
+                    controller.loadDailyVerse();
+                  },
+                  child: SizedBox(
+                    width: 20.w,
+                    height: 20.w,
+                    child: controller.isLoadingVerse.value
+                        ? CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.secondary,
+                          )
+                        : Icon(
+                            Icons.refresh,
+                            color: AppColors.secondary,
+                          ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          Text(
-            '"And He is with you wherever you are."\n~Quran 53:32',
-            style: AppTextStyles.smallMidText,
-          ),
+          Obx(() {
+            final verse = controller.dailyVerse.value;
+            if (verse == null) {
+              return Text(
+                'Loading verse...',
+                style: AppTextStyles.smallMidText,
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    verse.arabicText,
+                    style: AppTextStyles.midBoldText.copyWith(
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.right,
+                    textDirection: TextDirection.rtl,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  '~ ${verse.surahNameEnglish} ${verse.numberInSurah}:${verse.surahNumber}',
+                  style: AppTextStyles.smallMidText.copyWith(
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            );
+          }),
         ],
       ),
     );

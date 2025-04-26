@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import '../models/surah_model.dart';
+import '../models/verse_response_model.dart';
 
 class SurahDataSource {
   final Dio dio;
@@ -27,6 +28,23 @@ class SurahDataSource {
   //     throw Exception('Failed to load surah');
   //   }
   // }
+
+  Future<VerseResponse> getVerseByNumber(int verseNumber) async {
+    try {
+      final response = await dio.get(
+        'https://api.alquran.cloud/v1/ayah/$verseNumber',
+      );
+
+      if (response.statusCode == 200) {
+        return VerseResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load verse');
+      }
+    } catch (e) {
+      print('Error fetching verse: $e');
+      throw Exception('Failed to load verse');
+    }
+  }
 
   Future<Surah> getSurah(int surahNumber) async {
     final arabicResponse =

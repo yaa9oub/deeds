@@ -25,6 +25,12 @@ class HomeBinding extends Bindings {
     // Register NotificationService
     Get.lazyPut<NotificationService>(() => NotificationService());
 
+    // Register SurahDataSource and Repository
+    Get.lazyPut(() => SurahDataSource(Get.find<Dio>()));
+    Get.lazyPut<SurahRepository>(
+      () => SurahRepositoryImpl(Get.find<SurahDataSource>()),
+    );
+
     // Register PrayerTimingRepository
     Get.lazyPut<PrayerTimingRepository>(
       () => PrayerTimingRepositoryImpl(

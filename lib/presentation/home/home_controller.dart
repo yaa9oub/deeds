@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:deeds/core/constants/all_surahs.dart';
 import 'package:deeds/core/constants/assets.dart';
@@ -14,11 +15,14 @@ import '../../core/utils/notifications.dart';
 import '../../data/models/prayer.dart';
 import '../../domain/entities/prayer_timing.dart';
 import '../../domain/entities/surah_entity.dart';
+import '../../domain/entities/verse_entity.dart';
+import '../../domain/repositories/surah_repo.dart';
 import '../../domain/usecases/get_prayer_timings_usecase.dart';
 
 class HomeController extends GetxController {
   final GetPrayerTimingsUseCase _getPrayerTimingsUseCase;
   final LocationService _locationService = Get.find<LocationService>();
+  final SurahRepository _surahRepository = Get.find<SurahRepository>();
 
   HomeController(this._getPrayerTimingsUseCase);
 
@@ -41,10 +45,15 @@ class HomeController extends GetxController {
 
   final Rx<bool> isLoading = false.obs;
 
+  // Daily verse variables
+  final Rx<QuranVerseEntity?> dailyVerse = Rx<QuranVerseEntity?>(null);
+  final Rx<bool> isLoadingVerse = false.obs;
+
   @override
   void onInit() async {
     super.onInit();
     await _initializeData();
+    await loadDailyVerse();
   }
 
   Future<void> _initializeData() async {
@@ -229,6 +238,29 @@ class HomeController extends GetxController {
           "✅ Scheduled ${isReminder ? "Reminder" : "Alarm"} for ${prayer.label} at $tzTime");
     } catch (e) {
       print("❌ Error scheduling ${prayer.label}: $e");
+    }
+  }
+
+  Future<void> loadDailyVerse() async {
+    try {
+      isLoadingVerse.value = true;
+
+      // Get a random verse number (total verses in Quran: 6,236)
+      final random = Random();
+      final verseNumber = random.nextInt(6236) + 1;
+
+      // Fetch the verse
+      final verse = await _surahRepository.getVerseByNumber(verseNumber);
+      dailyVerse.value = verse;
+    } catch (e) {
+      print('Error loading daily verse: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to load daily verse',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoadingVerse.value = false;
     }
   }
 }
