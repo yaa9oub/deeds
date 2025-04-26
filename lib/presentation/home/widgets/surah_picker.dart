@@ -21,29 +21,32 @@ void showSurahPicker(HomeController controller) {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Spacer(),
-            CupertinoPicker(
-              itemExtent: 60,
-              scrollController: FixedExtentScrollController(
-                initialItem: controller.selectedSurah.value - 1,
-              ),
-              onSelectedItemChanged: (value) {
-                controller.selectedSurah.value = surahs[value]["id"];
-                controller.surahNumber.value = surahs[value]["id"];
-                controller.surahLength.value = surahs[value]["verses"];
-                controller.surahName.value = surahs[value]["name"];
-              },
-              children: List.generate(
-                surahs.length,
-                (index) {
-                  var surah = surahs[index];
-                  return Center(
-                    child: Text(
-                      '${surah['id']} - ${surah['name']} (${surah['verses']} Verses)',
-                      style: AppTextStyles.smallMidText,
-                    ),
-                  );
+            const Spacer(),
+            SizedBox(
+              height: 250,
+              child: CupertinoPicker(
+                itemExtent: 60,
+                scrollController: FixedExtentScrollController(
+                  initialItem: controller.selectedSurah.value - 1,
+                ),
+                onSelectedItemChanged: (value) {
+                  controller.selectedSurah.value = surahs[value]["id"];
+                  controller.surahNumber.value = surahs[value]["id"];
+                  controller.surahLength.value = surahs[value]["verses"];
+                  controller.surahName.value = surahs[value]["name"];
                 },
+                children: List.generate(
+                  surahs.length,
+                  (index) {
+                    var surah = surahs[index];
+                    return Center(
+                      child: Text(
+                        '${surah['id']} - ${surah['name']} (${surah['verses']} Verses)',
+                        style: AppTextStyles.smallMidText,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             SizedBox(height: 10.h),
@@ -55,31 +58,35 @@ void showSurahPicker(HomeController controller) {
                       ? surahs[selectedSurahIndex - 1]['verses']
                       : 0;
 
-              return CupertinoPicker(
-                itemExtent: 60,
-                scrollController: FixedExtentScrollController(
-                  initialItem: controller.selectedVerse.value - 1,
-                ),
-                onSelectedItemChanged: (value) {
-                  if (value > 0 && value < verseCount) {
-                    controller.selectedVerse.value = value + 1;
-                  } else {
-                    controller.selectedVerse.value = 1;
-                  }
-                  controller.verseNumber.value = controller.selectedVerse.value;
-                },
-                children: List.generate(
-                  verseCount,
-                  (index) => Center(
-                    child: Text(
-                      '${index + 1}',
-                      style: AppTextStyles.smallMidText,
+              return SizedBox(
+                height: 250,
+                child: CupertinoPicker(
+                  itemExtent: 60,
+                  scrollController: FixedExtentScrollController(
+                    initialItem: controller.selectedVerse.value - 1,
+                  ),
+                  onSelectedItemChanged: (value) {
+                    if (value > 0 && value < verseCount) {
+                      controller.selectedVerse.value = value + 1;
+                    } else {
+                      controller.selectedVerse.value = 1;
+                    }
+                    controller.verseNumber.value =
+                        controller.selectedVerse.value;
+                  },
+                  children: List.generate(
+                    verseCount,
+                    (index) => Center(
+                      child: Text(
+                        '${index + 1}',
+                        style: AppTextStyles.smallMidText,
+                      ),
                     ),
                   ),
                 ),
               );
             }),
-            Spacer(),
+            const Spacer(),
             PrimaryButton(
               width: 300.w,
               onPressed: () {

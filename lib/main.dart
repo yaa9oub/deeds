@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_urls.dart';
 import 'core/utils/shared_prefs.dart';
+import 'core/services/location_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,10 @@ void main() async {
 
   await NotificationService().initNotification();
   await SharedPrefService.init();
+
+  // Initialize location service
+  await Get.putAsync(() => LocationService().init());
+
   runApp(MyApp());
 }
 

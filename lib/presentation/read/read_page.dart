@@ -303,120 +303,114 @@ class ReadPage extends GetView<ReadController> {
     Get.bottomSheet(
       SizedBox(
         width: double.infinity,
-        height: MediaQuery.of(Get.context!).size.height * 0.85,
+        height: MediaQuery.of(Get.context!).size.height * 0.95,
         child: Stack(
           children: [
-            Column(
-              children: [
-                Screenshot(
-                  controller: screenshotController,
-                  child: Container(
-                    width: double.infinity,
-                    height: MediaQuery.of(Get.context!).size.height * 0.85,
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFFFABE2).withOpacity(0.6),
-                            Color(0xFFA020F0).withOpacity(0.4),
+            Screenshot(
+              controller: screenshotController,
+              child: Container(
+                width: double.infinity,
+                height: MediaQuery.of(Get.context!).size.height * 0.95,
+                decoration: const BoxDecoration(color: Colors.white),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFFFABE2).withOpacity(0.6),
+                        Color(0xFFA020F0).withOpacity(0.4),
+                      ],
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        // height: 250.h,
+                        // constraints: BoxConstraints(
+                        //   maxHeight: 250.h,
+                        // ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 34.w,
+                          vertical: 24.h,
+                        ),
+                        margin: EdgeInsets.symmetric(horizontal: 24.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.r),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColors.secondary.withAlpha(50),
+                              AppColors.secondary,
+                              AppColors.secondary.withAlpha(50),
+                            ],
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  controller
+                                      .surah
+                                      .value!
+                                      .ayahs[controller.verseNumber.value - 1]
+                                      .text,
+                                  style: AppTextStyles.midBoldText,
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  controller
+                                      .surah
+                                      .value!
+                                      .ayahs[controller.verseNumber.value - 1]
+                                      .translation,
+                                  style: AppTextStyles.smallBoldText,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                            Text(
+                              "${controller.surah.value!.name} - ${controller.surah.value!.number} - ${controller.verseNumber.value}",
+                              style: AppTextStyles.smallBoldText,
+                              textAlign: TextAlign.center,
+                            )
                           ],
                         ),
                       ),
-                      child: Column(
+                      SizedBox(
+                        height: 20.h,
+                      ),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            width: double.infinity,
-                            height: 250.h,
-                            constraints: BoxConstraints(
-                              maxHeight: 250.h,
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 34.w,
-                              vertical: 24.h,
-                            ),
-                            margin: EdgeInsets.symmetric(horizontal: 24.w),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.r),
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  AppColors.secondary.withAlpha(50),
-                                  AppColors.secondary,
-                                  AppColors.secondary.withAlpha(50),
-                                ],
-                              ),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      controller
-                                          .surah
-                                          .value!
-                                          .ayahs[
-                                              controller.verseNumber.value - 1]
-                                          .text,
-                                      style: AppTextStyles.midBoldText,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Text(
-                                      controller
-                                          .surah
-                                          .value!
-                                          .ayahs[
-                                              controller.verseNumber.value - 1]
-                                          .translation,
-                                      style: AppTextStyles.smallBoldText,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  "${controller.surah.value!.name} - ${controller.surah.value!.number} - ${controller.verseNumber.value}",
-                                  style: AppTextStyles.smallBoldText,
-                                  textAlign: TextAlign.center,
-                                )
-                              ],
-                            ),
+                          Image.asset(
+                            AppAssets.logo,
+                            width: 30.w,
+                            height: 30.h,
+                            color: AppColors.primary,
                           ),
                           SizedBox(
-                            height: 20.h,
+                            width: 10.w,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Image.asset(
-                                AppAssets.logo,
-                                width: 30.w,
-                                height: 30.h,
-                                color: AppColors.primary,
-                              ),
-                              SizedBox(
-                                width: 10.w,
-                              ),
-                              Text(
-                                "Deeds",
-                                style: AppTextStyles.midBoldText,
-                              ),
-                            ],
-                          )
+                          Text(
+                            "Deeds",
+                            style: AppTextStyles.midBoldText,
+                          ),
                         ],
-                      ),
-                    ),
+                      )
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
             SizedBox(
               width: double.infinity,

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:deeds/core/constants/all_surahs.dart';
 import 'package:deeds/core/constants/assets.dart';
 import 'package:deeds/core/constants/consts.dart';
+import 'package:deeds/core/services/location_service.dart';
 import 'package:deeds/core/utils/shared_prefs.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
@@ -17,6 +18,7 @@ import '../../domain/usecases/get_prayer_timings_usecase.dart';
 
 class HomeController extends GetxController {
   final GetPrayerTimingsUseCase _getPrayerTimingsUseCase;
+  final LocationService _locationService = Get.find<LocationService>();
 
   HomeController(this._getPrayerTimingsUseCase);
 
@@ -30,7 +32,7 @@ class HomeController extends GetxController {
   final Rx<String> surahName = "Surah name".obs;
   final Rx<int> surahLength = 7.obs;
   //prayers list variables
-  final Rx<String> city = "Tunis".obs;
+  final Rx<String> city = "".obs;
   final RxList<PrayerTiming> prayers = <PrayerTiming>[].obs;
   final Rx<SurahEntity?> surah = Rx<SurahEntity?>(null);
   // surah selector variables
@@ -38,6 +40,7 @@ class HomeController extends GetxController {
   final Rx<int> selectedVerse = 1.obs;
 
   final Rx<bool> isLoading = false.obs;
+
   @override
   void onInit() async {
     super.onInit();
@@ -45,10 +48,16 @@ class HomeController extends GetxController {
   }
 
   Future<void> _initializeData() async {
-    // Load saved prayer toggle states
-    city.value =
-        SharedPrefService.getString(LocalVariables.city.name) ?? "Tunis";
+    // Get current location
+    await _locationService.getCurrentLocation();
+
+    // Load saved city or use current location
+    city.value = SharedPrefService.getString(LocalVariables.city.name) ??
+        _locationService.currentCity;
+
+    // Search for location using current city
     await searchForLocation(city.value);
+
     _loadPrayerToggleStates();
     _loadSavedData();
   }
@@ -117,9 +126,13 @@ class HomeController extends GetxController {
   Future<void> searchForLocation(String city) async {
     isLoading.value = true;
     try {
-      final prayerTimings =
-          await _getPrayerTimingsUseCase.call(city, "Tunisia");
+      final prayerTimings = await _getPrayerTimingsUseCase.call(
+          city, _locationService.currentCountry);
       prayers.value = prayerTimings;
+
+      // Save the selected city
+      await SharedPrefService.saveString(LocalVariables.city.name, city);
+      this.city.value = city;
 
       // After loading new prayer timings, apply saved toggle states
       _loadPrayerToggleStates();
