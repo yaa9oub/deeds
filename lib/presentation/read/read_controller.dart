@@ -129,16 +129,24 @@ class ReadController extends GetxController {
     } else {
       currentPage.value = 0;
     }
-
     if (currentVerseId <= surahLength && currentVerseId - 1 >= 0) {
       if (currentVersePage < currentVerseId) {
         currentVersePage = currentVerseId;
         currentDeeds.value = currentDeeds.value +
-            surah.value!.ayahs[currentVerseId - 1].text.length * 10;
+            removeTashkeel(surah.value!.ayahs[currentVerseId - 1].text)
+                    .replaceAll(" ", "")
+                    .length *
+                10;
       }
     }
 
     saveCurrentReading();
+  }
+
+  String removeTashkeel(String input) {
+    final RegExp tashkeelRegex =
+        RegExp(r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]');
+    return input.replaceAll(tashkeelRegex, '');
   }
 
   void saveCurrentReading() {

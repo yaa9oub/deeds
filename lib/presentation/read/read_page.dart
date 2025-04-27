@@ -288,9 +288,6 @@ class ReadPage extends GetView<ReadController> {
                           ),
                   ),
                 ),
-                SizedBox(
-                  height: 15.h,
-                ),
               ],
             ),
           ],

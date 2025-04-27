@@ -56,12 +56,19 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: AppRoutes.splash,
         getPages: AppPages.pages,
-        theme: ThemeData.light(
-          useMaterial3: true,
-        ),
-        // darkTheme: ThemeData.dark(),
+        theme: getTheme(context),
         defaultTransition: Transition.fade,
       ),
     );
   }
+}
+
+ThemeData getTheme(BuildContext context) {
+  return Theme.of(context).copyWith(
+    primaryColor: Colors.white,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.pink.shade100,
+      brightness: Brightness.light,
+    ),
+  );
 }
